@@ -13,7 +13,7 @@
             font-family: 'Inter', sans-serif;
             background-color: #f8f7f4;
             color: #343a40;
-            padding-top: 64px; 
+            padding-top: 64px;
         }
         .nav-link {
             @apply px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-white hover:bg-blue-600 transition-colors;
@@ -21,11 +21,14 @@
         .nav-link.active {
             @apply bg-blue-700 text-white;
         }
-        /* New mobile nav link style */
+        /* Updated mobile nav link style */
         .mobile-nav-link {
-            @apply block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-white hover:bg-blue-600 transition-colors;
+             @apply block w-full text-center px-4 py-3 mb-2 rounded-md text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 shadow-md hover:shadow-lg hover:scale-105 transition-all transform;
         }
-        
+        .mobile-nav-link:last-child {
+            @apply mb-0; /* Remove margin from the last button */
+        }
+
         .lang-btn {
             @apply px-3 py-1 rounded-md text-sm font-medium transition-colors;
         }
@@ -51,7 +54,7 @@
             /* Apply the animation */
             animation: float 6s ease-in-out infinite;
         }
-        
+
         /* Stagger animations for a 'cloudy' effect */
         #tab-btn-electronics { animation-delay: -3s; }
         #tab-btn-calibration { animation-delay: -1.5s; }
@@ -73,16 +76,16 @@
             transform: scale(1.05);
             @apply shadow-xl;
         }
-        
+
         .build-icon {
             @apply text-5xl text-blue-600 w-12;
         }
         .tab-content {
             @apply bg-white p-6 rounded-b-lg rounded-tr-lg shadow-md mt-6;
         }
-        
+
         /* REMOVED .overview-card styles */
-        
+
         .overview-content {
              @apply bg-white p-6 rounded-lg shadow-xl max-w-3xl mx-auto mt-6;
         }
@@ -117,9 +120,9 @@
             @apply flex flex-col items-center justify-center p-4 bg-white bg-opacity-80 rounded-full shadow-inner; /* Inner white circle */
             color: #1e40af; /* Darker blue text */
             transition: all 0.3s ease-in-out;
-            width: 100%; 
-            height: 100%; 
-            aspect-ratio: 1/1; 
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 1/1;
         }
         .overview-button:hover {
             @apply bg-blue-50;
@@ -131,7 +134,7 @@
         .overview-button.active .overview-text-description {
             color: #333; /* Darken text when active */
         }
-        
+
         .overview-cloud-wrapper.active {
              animation-play-state: paused; /* Stop floating when active */
              transform: translateY(0px) scale(1.08);
@@ -247,7 +250,7 @@
                 <div class="flex-shrink-0 flex items-center">
                     <span class="text-2xl font-bold text-blue-700" data-lang-key="nav_title">AI Turret Explorer</span>
                 </div>
-                
+
                 <!-- Desktop Nav -->
                 <div class="hidden sm:flex sm:items-center sm:space-x-4">
                     <div class="flex space-x-4">
@@ -258,7 +261,7 @@
                         <a href="#build" class="nav-link" data-lang-key="nav_build">Build Guides</a>
                         <a href="#safety" class="nav-link" data-lang-key="nav_safety">Safety</a>
                     </div>
-                    
+
                     <!-- Language Switcher (Desktop) -->
                     <div class="relative inline-block text-left ml-4 pl-4 border-l border-gray-200">
                         <button type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-blue-600 text-sm font-medium text-white hover:bg-blue-700" id="lang-toggle-btn">
@@ -295,7 +298,7 @@
 
         <!-- Mobile Menu (hidden by default) -->
         <div id="mobile-menu" class="hidden sm:hidden bg-white shadow-lg">
-            <div class="px-2 pt-2 pb-3 space-y-1">
+            <div class="px-4 pt-4 pb-3 space-y-1">
                 <a href="#home" class="mobile-nav-link" data-lang-key="nav_home">Home</a>
                 <a href="#turret-3d" class="mobile-nav-link" data-lang-key="nav_3d">3D Turret View</a>
                 <a href="#overview" class="mobile-nav-link" data-lang-key="nav_overview">System Overview</a>
@@ -303,13 +306,13 @@
                 <a href="#build" class="mobile-nav-link" data-lang-key="nav_build">Build Guides</a>
                 <a href="#safety" class="mobile-nav-link" data-lang-key="nav_safety">Safety</a>
             </div>
-            <!-- Language Switcher (Mobile) -->
+            <!-- Language Switcher (Mobile) - Moved outside the main link list -->
             <div class="pt-4 pb-3 border-t border-gray-200">
                 <div class="px-4">
-                    <p class="text-sm font-medium text-gray-500" data-lang-key="nav_lang_title">Language</p>
-                    <div class="mt-2 space-y-1">
-                        <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100" data-lang="en">English (EN)</a>
-                        <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100" data-lang="zh-tw">繁體中文 (ZH-TW)</a>
+                    <p class="text-sm font-medium text-gray-500 mb-2" data-lang-key="nav_lang_title">Language</p>
+                    <div class="flex items-center space-x-2">
+                         <button class="flex-1 px-3 py-2 rounded-md text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-100" data-lang="en">English (EN)</button>
+                         <button class="flex-1 px-3 py-2 rounded-md text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-100" data-lang="zh-tw">繁體中文 (ZH-TW)</button>
                     </div>
                 </div>
             </div>
@@ -352,13 +355,13 @@
             <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
                 
 
-<model-viewer 
+<model-viewer
                     src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
                     poster="https://modelviewer.dev/shared-assets/models/Astronaut.webp"
-                    alt="Interactive 3D model of the AI Turret (using a placeholder Astronaut)" 
-                    ar 
-                    ar-modes="webxr scene-viewer quick-look" 
-                    camera-controls 
+                    alt="Interactive 3D model of the AI Turret (using a placeholder Astronaut)"
+                    ar
+                    ar-modes="webxr scene-viewer quick-look"
+                    camera-controls
                     touch-action="pan-y"
                     auto-rotate
                     shadow-intensity="1"
@@ -377,14 +380,14 @@
                 </div>
             </div>
         </section>
-        
+
 
 <section id="overview" class="content-section">
             <h2 class="text-3xl font-bold text-center mb-4" data-lang-key="overview_title">System Architecture</h2>
             <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12" data-lang-key="overview_subtitle">The turret operates on a classic "Perception-Decision-Actuation" loop. This model explains how the components work together in real-time. Click a cloud to learn more about its function and key components.</p>
-            
+
             <div class="flex flex-col md:flex-row items-center justify-center gap-8 mb-8">
-                
+
                 <div id="cloud-perception" class="overview-cloud-wrapper" data-overview="perception">
                     <button class="overview-button" id="btn-perception">
                         <span class="overview-icon-inner" role="img" aria-label="eye">👁️</span>
@@ -392,7 +395,7 @@
                         <p class="overview-text-description" data-lang-key="overview_btn1_desc">Sensing the environment.</p>
                     </button>
                 </div>
-                
+
                 <div id="cloud-decision" class="overview-cloud-wrapper" data-overview="decision">
                      <button class="overview-button" id="btn-decision">
                         <span class="overview-icon-inner" role="img" aria-label="brain">🧠</span>
@@ -400,7 +403,7 @@
                         <p class="overview-text-description" data-lang-key="overview_btn2_desc">Analyzing and planning.</p>
                     </button>
                 </div>
-                
+
                 <div id="cloud-actuation" class="overview-cloud-wrapper" data-overview="actuation">
                      <button class="overview-button" id="btn-actuation">
                         <span class="overview-icon-inner" role="img" aria-label="gear">⚙️</span>
@@ -414,12 +417,12 @@
                 <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content1_title">Perception: The 360° Vision System</h3>
                 <p class="text-gray-700" data-lang-key="overview_content1_desc">The system perceives its environment using a quad-camera array (4x Logitech C615 webcams) providing a seamless 360-degree panoramic view. This continuous stream of visual data is the primary sensory input, fed directly to the AI model for analysis. This setup eliminates blind spots and ensures comprehensive situational awareness.</p>
             </div>
-            
+
             <div id="content-decision" class="overview-content hidden">
                 <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content2_title">Decision: The AI Brain (Jetson & YOLO)</h3>
                 <p class="text-gray-700" data-lang-key="overview_content2_desc">The heart of the decision-making process is the NVIDIA Jetson Orin Nano. It runs a custom-trained YOLO model, processing all camera feeds in real-time. This model detects and classifies objects (macaque, muntjac, human). The control software applies a simple logic: if a human is seen, enter "Safe Mode." If a target animal is seen (and no human), calculate its position and initiate tracking.</p>
             </div>
-            
+
             <div id="content-actuation" class="overview-content hidden">
                 <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content3_title">Actuation: The Mechanical Response</h3>
                 <p class="text-gray-700" data-lang-key="overview_content3_desc">Based on the AI's decision, the Jetson commands the physical hardware. It sends signals to two NEMA 23 stepper motors via DM542S drivers, which move the high-torque herringbone gear pan-tilt mechanism to aim the paintball gun. To fire, it sends a signal to a relay, which activates a 24V solenoid to pull the trigger. This entire loop repeats multiple times per second.</p>
@@ -429,14 +432,14 @@
         <section id="components" class="content-section">
             <h2 class="text-3xl font-bold text-center mb-4" data-lang-key="components_title">Interactive Bill of Materials</h2>
             <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12" data-lang-key="components_subtitle">This is the complete list of components required for the project. Use the filters to explore parts by category or use the search bar to find a specific item. A breakdown of component categories is shown in the chart.</p>
-            
+
             <div class="flex flex-col md:flex-row gap-8">
                 <div class="w-full md:w-1/3">
                     <h3 class="text-2xl font-semibold text-center mb-4" data-lang-key="components_chart_title">Component Categories</h3>
                     <div class="chart-container">
                         <canvas id="bomChart"></canvas>
                     </div>
-                    
+
                     <h3 class="text-2xl font-semibold text-center mb-4 mt-12" data-lang-key="components_software_title">Key Software Stack</h3>
                     <div class="space-y-3">
                         <div class="p-4 bg-white rounded-lg shadow-md">
@@ -461,14 +464,14 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="w-full md:w-2/3">
                     <div class="mb-4">
                         <input type="text" id="searchInput" class="w-full px-4 py-3 rounded-lg shadow-inner border border-gray-300" placeholder="Search for a component (e.g., 'Jetson', 'NEMA 23')..." data-lang-key="components_search_placeholder">
                     </div>
                     <div id="category-filters" class="flex flex-wrap gap-2 mb-6">
                     </div>
-                    
+
                     <div id="component-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2">
                     </div>
                 </div>
@@ -480,7 +483,7 @@
             <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12" data-lang-key="build_subtitle">Explore the four core phases of building this AI Turret. Click on any cloud below to reveal detailed steps, challenges, and insights for that stage of development.</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 justify-items-center">
-                
+
                 <!-- Mechanical Assembly Cloud Button --><div id="cloud-mech" class="cloud-button-wrapper" data-tab="mechanical">
                     <button class="cloud-button" id="tab-btn-mechanical">
                         <span class="cloud-icon" role="img" aria-label="gears">🔩</span>
@@ -488,7 +491,7 @@
                         <p class="cloud-text-description" data-lang-key="build_btn1_desc">Physical frame & motion system</p>
                     </button>
                 </div>
-                
+
                 <!-- Electronics & Wiring Cloud Button --><div id="cloud-elec" class="cloud-button-wrapper" data-tab="electronics">
                     <button class="cloud-button" id="tab-btn-electronics">
                         <span class="cloud-icon" role="img" aria-label="circuit">⚡</span>
@@ -496,7 +499,7 @@
                         <p class="cloud-text-description" data-lang-key="build_btn2_desc">Power, logic & control components</p>
                     </button>
                 </div>
-                
+
                 <!-- AI Model & Software Cloud Button --><div id="cloud-ai" class="cloud-button-wrapper" data-tab="ai">
                     <button class="cloud-button" id="tab-btn-ai">
                         <span class="cloud-icon" role="img" aria-label="brain">🧠</span>
@@ -504,7 +507,7 @@
                         <p class="cloud-text-description" data-lang-key="build_btn3_desc">Training vision & control script</p>
                     </button>
                 </div>
-                
+
                 <!-- Calibration & Testing Cloud Button --><div id="cloud-calib" class="cloud-button-wrapper" data-tab="calibration">
                     <button class="cloud-button" id="tab-btn-calibration">
                         <span class="cloud-icon" role="img" aria-label="target">🎯</span>
@@ -638,6 +641,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
+            let currentLanguage = 'zh-tw'; // Set default language here
+
             // --- TRANSLATION SCRIPT ---
             const translations = {
                 'en': {
@@ -651,6 +656,7 @@
                     'nav_components': 'Components',
                     'nav_build': 'Build Guides',
                     'nav_safety': 'Safety',
+                    'nav_lang_title': 'Language', // Added for mobile
                     'home_title': 'AI-Powered Autonomous Turret',
                     'home_subtitle': 'An interactive guide to the construction and programming of an intelligent, non-lethal wildlife deterrent. This system is designed to identify and discourage specific animals from protected areas while actively detecting and avoiding human presence.',
                     'home_explore_btn': 'Explore the System',
@@ -760,6 +766,7 @@
                     'nav_components': '組件',
                     'nav_build': '組裝指南',
                     'nav_safety': '安全',
+                    'nav_lang_title': '語言', // Added for mobile
                     'home_title': 'AI 驅動自主砲塔',
                     'home_subtitle': '一個互動指南，介紹如何建構和編程一個智能的非致命野生動物威懾系統。該系統旨在識別並阻止特定動物進入保護區，同時主動偵測並避開人類。',
                     'home_explore_btn': '探索系統',
@@ -784,7 +791,7 @@
                     'overview_content1_title': '感知：360° 視覺系統',
                     'overview_content1_desc': '該系統使用四個攝像頭陣列（4x Logitech C615 網路攝像頭）感知環境，提供無縫的 360 度全景視圖。這種連續的視覺數據流是主要的感官輸入，直接饋送到 AI 模型進行分析。這種設置消除了盲點，確保了全面的態勢感知。',
                     'overview_content2_title': '決策：AI 大腦 (Jetson & YOLO)',
-                    'overview_content2_desc': '決策過程的核心是 NVIDIA Jetson Orin Nano。它運行一個客製化訓練的 YOLO 模型，即時處理所有攝像頭反饋。該模型偵測並分類物體（獼猴、山羌、人類）。控制軟體應用簡單的邏DGIc：如果看到人類，則進入「安全模式」。如果看到目標動物（且沒有人類），則計算其位置並啟動跟踪。',
+                    'overview_content2_desc': '決策過程的核心是 NVIDIA Jetson Orin Nano。它運行一個客製化訓練的 YOLO 模型，即時處理所有攝像頭反饋。該模型偵測並分類物體（獼猴、山羌、人類）。控制軟體應用簡單的邏輯：如果看到人類，則進入「安全模式」。如果看到目標動物（且沒有人類），則計算其位置並啟動跟踪。',
                     'overview_content3_title': '致動：機械反應',
                     'overview_content3_desc': '基於 AI 的決策，Jetson 向實體硬體下達命令。它通過 DM542S 驅動器向兩個 NEMA 23 步進電機發送信號，移動高扭矩人字齒輪平移傾斜機構以瞄準漆彈槍。要開火，它向繼電器發送信號，繼電器啟動一個 24V 電磁閥來扣動扳機。這整個循環每秒重複多次。',
                     'components_title': '互動材料清單 (BOM)',
@@ -811,7 +818,7 @@
                     'build_btn2_title': '電子與佈線',
                     'build_btn2_desc': '電源、邏輯與控制組件',
                     'build_btn3_title': 'AI 模型與軟體',
-                    'build_btn3_desc': '訓練視覺與控制腳Bben',
+                    'build_btn3_desc': '訓練視覺與控制腳本',
                     'build_btn4_title': '校準與測試',
                     'build_btn4_desc': '對齊視覺與硬體',
                     'build_content1_title': '階段 1：機械組裝',
@@ -819,11 +826,11 @@
                     'build_content1_step1_title': '1. 建構主框架',
                     'build_content1_step1_desc': '組裝 2020 鋁擠型材底座和龍門架。使用角碼和 T 型螺母創建一個剛性骨架，確保所有角落都完全呈直角。',
                     'build_content1_step2_title': '2. 製作與組裝平移傾斜驅動器',
-                    'build_content1_step2_desc': '使用 PETG 或 ABS 3D 列印大型人字齒輪（平移和傾斜）和馬達小齒輪。將平移馬達安裝在框架內，與位於推力軸承上的主環齒輪meshing。組裝傾斜龍門架及其馬達和齒輪，由深溝球軸承支撐。',
+                    'build_content1_step2_desc': '使用 PETG 或 ABS 3D 列印大型人字齒輪（平移和傾斜）和馬達小齒輪。將平移馬達安裝在框架內，與位於推力軸承上的主環齒輪嚙合。組裝傾斜龍門架及其馬達和齒輪，由深溝球軸承支撐。',
                     'build_content1_step3_title': '3. 安裝有效載荷與視覺系統',
                     'build_content1_step3_desc': '將漆彈槍固定在其 3D 列印的托架中。使用客製化支架安裝 24V 電磁閥，使其與扳機完美對齊。將四個網路攝像頭安裝在固定的底座框架上，以創建重疊的 360° 視野。',
                     'build_content2_title': '階段 2：電子與佈線',
-                    'build_content2_desc': '此階段連接所有組件，分配電源和控制信號。一個乾淨、有條理的佈線計劃和適當的接地對於防止電噪聲干擾 Jetson 的邏GIC信號至關重要。',
+                    'build_content2_desc': '此階段連接所有組件，分配電源和控制信號。一個乾淨、有條理的佈線計劃和適當的接地對於防止電噪聲干擾 Jetson 的邏輯信號至關重要。',
                     'build_content2_step1_title': '1. 電源分配',
                     'build_content2_step1_desc': '安裝 12V 明緯電源供應器。使用端子台將 12V 電源分配給 Jetson、馬達驅動器和兩個 DC-DC 轉換器。一個降壓轉換器將 12V 降至 5V（用於邏輯），一個升壓轉換器將 12V 升至 24V（用於電磁閥）。',
                     'build_content2_step2_title': '2. 運動控制佈線',
@@ -867,9 +874,10 @@
             const mobileMenu = document.getElementById('mobile-menu');
 
             function setLanguage(lang) {
+                currentLanguage = lang; // Update current language variable
                 document.documentElement.lang = lang;
                 document.getElementById('page-title').textContent = translations[lang]['page_title'];
-                
+
                 const elements = document.querySelectorAll('[data-lang-key]');
                 elements.forEach(el => {
                     const key = el.dataset.langKey;
@@ -883,11 +891,14 @@
                 if (searchInput) {
                     searchInput.placeholder = translations[lang]['components_search_placeholder'];
                 }
-                
+
                 // Update main lang button text
                 if (langBtnText) {
                     langBtnText.textContent = translations[lang]['lang_btn_text'];
                 }
+
+                // Re-render component list with new language
+                renderComponents();
 
                 // Close dropdowns
                 if (langDropdown) langDropdown.classList.add('hidden');
@@ -928,7 +939,7 @@
                     const isOpen = mobileMenu.classList.toggle('hidden'); // true if hidden, false if open
                     const hamburgerIcon = mobileMenuBtn.querySelector('svg:nth-of-type(1)');
                     const closeIcon = mobileMenuBtn.querySelector('svg:nth-of-type(2)');
-                    
+
                     if (hamburgerIcon) {
                         hamburgerIcon.classList.toggle('hidden', !isOpen); // Hide hamburger if open
                         hamburgerIcon.classList.toggle('block', isOpen);  // Show hamburger if hidden
@@ -959,58 +970,59 @@
                 }
             });
 
-            // Set initial language
-            setLanguage('en'); 
-            // --- END TRANSLATION SCRIPT ---
-
-
+            // --- COMPONENT LIST SCRIPT ---
             const allComponents = [
-                { category: 'Computing', name: 'Jetson Orin Nano Dev Kit', spec: '-', qty: 1, role: 'Central processing unit for AI inference and system control.' },
-                { category: 'Structure', name: '2020 Aluminum Extrusion', spec: '45 cm', qty: 12, role: 'Forms the primary structural frame.' },
-                { category: 'Structure', name: '2020 Aluminum Extrusion', spec: '100 cm', qty: 12, role: 'Forms the primary structural frame.' },
-                { category: 'Structure', name: '2020 Corner Brackets', spec: '90-degree', qty: 40, role: 'Connects extrusions to form rigid frame corners.' },
-                { category: 'Structure', name: 'M5 T-Nuts', spec: 'For 2020', qty: 100, role: 'Provides threaded mounting points in extrusion slots.' },
-                { category: 'Structure', name: 'M5 Button Head Cap Screws', spec: '8 mm', qty: 100, role: 'Fastens components to T-nuts.' },
-                { category: 'Motion', name: 'NEMA 23 Stepper Motor', spec: 'High Torque (>2 N·m)', qty: 2, role: 'Provides rotational force for pan and tilt axes.' },
-                { category: 'Motion', name: 'Microstep Driver', spec: 'DM542S', qty: 2, role: 'Controls the current and stepping of the NEMA 23 motors.' },
-                { category: 'Motion', name: 'NEMA 23 Mounting Plate', spec: '60x90 mm', qty: 2, role: 'Securely mounts the stepper motors to the frame.' },
-                { category: 'Motion', name: 'Large Herringbone Ring Gear', spec: '3D Printed, ~200mm OD', qty: 1, role: 'Pan axis main gear for high torque and precision.' },
-                { category: 'Motion', name: 'Large Herringbone Tilt Gear', spec: '3D Printed, ~120mm OD', qty: 1, role: 'Tilt axis main gear.' },
-                { category: 'Motion', name: 'Motor Pinion Gear', spec: '3D Printed', qty: 2, role: 'Small gear attached to the motor shaft.' },
-                { category: 'Motion', name: 'Thrust Bearing', spec: 'e.g., 51110 (50mm ID)', qty: 1, role: 'Supports the axial load of the rotating turret.' },
-                { category: 'Motion', name: 'Deep Groove Ball Bearings', spec: 'e.g., 6806-2RS (30mm ID)', qty: 2, role: 'Supports the tilt axis shaft for smooth rotation.' },
-                { category: 'Payload', name: 'Paintball Gun', spec: 'Valken Razorback', qty: 1, role: 'The projectile delivery system.' },
-                { category: 'Payload', name: 'Push-Pull Solenoid', spec: 'DC 24V, 35mm stroke', qty: 1, role: 'Actuates the trigger mechanism.' },
-                { category: 'Payload', name: 'Solenoid Mounting Bracket', spec: 'Custom 3D Printed', qty: 1, role: 'Holds the solenoid in a precise position.' },
-                { category: 'Vision', name: 'Webcam', spec: 'Logitech C615', qty: 4, role: 'Provides 360-degree video input.' },
-                { category: 'Vision', name: 'USB-C to USB-A Hub', spec: '4-port, powered', qty: 1, role: 'Bypasses bandwidth limitations on the main USB hub.' },
-                { category: 'Vision', name: 'Camera Mounts', spec: 'Custom 3D Printed', qty: 4, role: 'Positions cameras on the frame.' },
-                { category: 'Power', name: 'Switching Power Supply', spec: 'Mean Well LRS-150-12', qty: 1, role: 'Provides main 12V DC power from AC.' },
-                { category: 'Power', name: 'DC-DC Buck Converter', spec: 'LM2596', qty: 1, role: 'Steps down 12V to 5V for logic.' },
-                { category: 'Power', name: 'DC-DC Boost Converter', spec: 'XL6009', qty: 1, role: 'Steps up 12V to 24V for the solenoid.' },
-                { category: 'Power', name: 'AC Power Cord', spec: '3-prong, grounded', qty: 1, role: 'Connects the PSU to mains power.' },
-                { category: 'Control', name: 'ESP32 Dev Board', spec: 'Optional', qty: 1, role: 'Optional secondary controller or GPIO expander.' },
-                { category: 'Control', name: 'Relay Module', spec: '1-channel, 5V logic', qty: 1, role: 'Switches the 24V power to the solenoid.' },
-                { category: 'Control', name: 'Terminal Block Connectors', spec: 'Screw terminals', qty: 1, role: 'Facilitates clean power and signal distribution.' },
-                { category: 'Control', name: 'Jumper Wires & Hookup Wire', spec: '18-22 AWG', qty: 1, role: 'For all electrical connections.' }
+                // Updated component data structure with translations
+                { category: 'Computing', name: { en: 'Jetson Orin Nano Dev Kit', 'zh-tw': 'Jetson Orin Nano 開發套件' }, spec: '-', qty: 1, role: { en: 'Central processing unit for AI inference and system control.', 'zh-tw': '用於 AI 推理和系統控制的中央處理單元。' } },
+                { category: 'Structure', name: { en: '2020 Aluminum Extrusion', 'zh-tw': '2020 鋁擠型材' }, spec: '45 cm', qty: 12, role: { en: 'Forms the primary structural frame.', 'zh-tw': '構成主要結構框架。' } },
+                { category: 'Structure', name: { en: '2020 Aluminum Extrusion', 'zh-tw': '2020 鋁擠型材' }, spec: '100 cm', qty: 12, role: { en: 'Forms the primary structural frame.', 'zh-tw': '構成主要結構框架。' } },
+                { category: 'Structure', name: { en: '2020 Corner Brackets', 'zh-tw': '2020 角碼' }, spec: '90-degree', qty: 40, role: { en: 'Connects extrusions to form rigid frame corners.', 'zh-tw': '連接擠型材以形成剛性框架角。' } },
+                { category: 'Structure', name: { en: 'M5 T-Nuts', 'zh-tw': 'M5 T 型螺母' }, spec: 'For 2020', qty: 100, role: { en: 'Provides threaded mounting points in extrusion slots.', 'zh-tw': '在擠型材槽中提供螺紋安裝點。' } },
+                { category: 'Structure', name: { en: 'M5 Button Head Cap Screws', 'zh-tw': 'M5 圓頭內六角螺絲' }, spec: '8 mm', qty: 100, role: { en: 'Fastens components to T-nuts.', 'zh-tw': '將組件固定到 T 型螺母上。' } },
+                { category: 'Motion', name: { en: 'NEMA 23 Stepper Motor', 'zh-tw': 'NEMA 23 步進馬達' }, spec: 'High Torque (>2 N·m)', qty: 2, role: { en: 'Provides rotational force for pan and tilt axes.', 'zh-tw': '為平移和傾斜軸提供旋轉力。' } },
+                { category: 'Motion', name: { en: 'Microstep Driver', 'zh-tw': '微步驅動器' }, spec: 'DM542S', qty: 2, role: { en: 'Controls the current and stepping of the NEMA 23 motors.', 'zh-tw': '控制 NEMA 23 馬達的電流和步進。' } },
+                { category: 'Motion', name: { en: 'NEMA 23 Mounting Plate', 'zh-tw': 'NEMA 23 安裝板' }, spec: '60x90 mm', qty: 2, role: { en: 'Securely mounts the stepper motors to the frame.', 'zh-tw': '將步進馬達牢固地安裝到框架上。' } },
+                { category: 'Motion', name: { en: 'Large Herringbone Ring Gear', 'zh-tw': '大型人字形環齒輪' }, spec: '3D Printed, ~200mm OD', qty: 1, role: { en: 'Pan axis main gear for high torque and precision.', 'zh-tw': '用於高扭矩和精度的平移軸主齒輪。' } },
+                { category: 'Motion', name: { en: 'Large Herringbone Tilt Gear', 'zh-tw': '大型人字形傾斜齒輪' }, spec: '3D Printed, ~120mm OD', qty: 1, role: { en: 'Tilt axis main gear.', 'zh-tw': '傾斜軸主齒輪。' } },
+                { category: 'Motion', name: { en: 'Motor Pinion Gear', 'zh-tw': '馬達小齒輪' }, spec: '3D Printed', qty: 2, role: { en: 'Small gear attached to the motor shaft.', 'zh-tw': '連接到馬達軸的小齒輪。' } },
+                { category: 'Motion', name: { en: 'Thrust Bearing', 'zh-tw': '推力軸承' }, spec: 'e.g., 51110 (50mm ID)', qty: 1, role: { en: 'Supports the axial load of the rotating turret.', 'zh-tw': '支撐旋轉砲塔的軸向負載。' } },
+                { category: 'Motion', name: { en: 'Deep Groove Ball Bearings', 'zh-tw': '深溝球軸承' }, spec: 'e.g., 6806-2RS (30mm ID)', qty: 2, role: { en: 'Supports the tilt axis shaft for smooth rotation.', 'zh-tw': '支撐傾斜軸軸以實現平滑旋轉。' } },
+                { category: 'Payload', name: { en: 'Paintball Gun', 'zh-tw': '漆彈槍' }, spec: 'Valken Razorback', qty: 1, role: { en: 'The projectile delivery system.', 'zh-tw': '彈射物發射系統。' } },
+                { category: 'Payload', name: { en: 'Push-Pull Solenoid', 'zh-tw': '推拉式電磁閥' }, spec: 'DC 24V, 35mm stroke', qty: 1, role: { en: 'Actuates the trigger mechanism.', 'zh-tw': '致動扳機機構。' } },
+                { category: 'Payload', name: { en: 'Solenoid Mounting Bracket', 'zh-tw': '電磁閥安裝支架' }, spec: 'Custom 3D Printed', qty: 1, role: { en: 'Holds the solenoid in a precise position.', 'zh-tw': '將電磁閥固定在精確位置。' } },
+                { category: 'Vision', name: { en: 'Webcam', 'zh-tw': '網路攝影機' }, spec: 'Logitech C615', qty: 4, role: { en: 'Provides 360-degree video input.', 'zh-tw': '提供 360 度視訊輸入。' } },
+                { category: 'Vision', name: { en: 'USB-C to USB-A Hub', 'zh-tw': 'USB-C 轉 USB-A 集線器' }, spec: '4-port, powered', qty: 1, role: { en: 'Bypasses bandwidth limitations on the main USB hub.', 'zh-tw': '繞過主 USB 集線器的帶寬限制。' } },
+                { category: 'Vision', name: { en: 'Camera Mounts', 'zh-tw': '相機支架' }, spec: 'Custom 3D Printed', qty: 4, role: { en: 'Positions cameras on the frame.', 'zh-tw': '將相機定位在框架上。' } },
+                { category: 'Power', name: { en: 'Switching Power Supply', 'zh-tw': '交換式電源供應器' }, spec: 'Mean Well LRS-150-12', qty: 1, role: { en: 'Provides main 12V DC power from AC.', 'zh-tw': '從交流電提供主要的 12V 直流電源。' } },
+                { category: 'Power', name: { en: 'DC-DC Buck Converter', 'zh-tw': 'DC-DC 降壓轉換器' }, spec: 'LM2596', qty: 1, role: { en: 'Steps down 12V to 5V for logic.', 'zh-tw': '將 12V 降壓至 5V 以供邏輯電路使用。' } },
+                { category: 'Power', name: { en: 'DC-DC Boost Converter', 'zh-tw': 'DC-DC 升壓轉換器' }, spec: 'XL6009', qty: 1, role: { en: 'Steps up 12V to 24V for the solenoid.', 'zh-tw': '將 12V 升壓至 24V 以供電磁閥使用。' } },
+                { category: 'Power', name: { en: 'AC Power Cord', 'zh-tw': '交流電源線' }, spec: '3-prong, grounded', qty: 1, role: { en: 'Connects the PSU to mains power.', 'zh-tw': '將電源供應器連接到市電。' } },
+                { category: 'Control', name: { en: 'ESP32 Dev Board', 'zh-tw': 'ESP32 開發板' }, spec: 'Optional', qty: 1, role: { en: 'Optional secondary controller or GPIO expander.', 'zh-tw': '可選的輔助控制器或 GPIO 擴展器。' } },
+                { category: 'Control', name: { en: 'Relay Module', 'zh-tw': '繼電器模組' }, spec: '1-channel, 5V logic', qty: 1, role: { en: 'Switches the 24V power to the solenoid.', 'zh-tw': '切換電磁閥的 24V 電源。' } },
+                { category: 'Control', name: { en: 'Terminal Block Connectors', 'zh-tw': '端子台連接器' }, spec: 'Screw terminals', qty: 1, role: { en: 'Facilitates clean power and signal distribution.', 'zh-tw': '方便整潔的電源和信號分配。' } },
+                { category: 'Control', name: { en: 'Jumper Wires & Hookup Wire', 'zh-tw': '跳線和連接線' }, spec: '18-22 AWG', qty: 1, role: { en: 'For all electrical connections.', 'zh-tw': '用於所有電氣連接。' } }
             ];
 
             let activeCategory = 'All';
             let searchTerm = '';
 
+            // MOVED THESE DECLARATIONS from lower down
             const componentGrid = document.getElementById('component-grid');
             const categoryFilters = document.getElementById('category-filters');
             const searchInput = document.getElementById('searchInput');
 
             function renderComponents() {
-                if (!componentGrid) return;
+                if (!componentGrid) return; // Safety check
                 const filtered = allComponents.filter(item => {
                     const inCategory = activeCategory === 'All' || item.category === activeCategory;
-                    const inSearch = searchTerm === '' || item.name.toLowerCase().includes(searchTerm) || item.role.toLowerCase().includes(searchTerm);
+                    const nameLang = item.name[currentLanguage] || item.name['en']; // Fallback to English name
+                    const roleLang = item.role[currentLanguage] || item.role['en']; // Fallback to English role
+                    const inSearch = searchTerm === '' || nameLang.toLowerCase().includes(searchTerm) || roleLang.toLowerCase().includes(searchTerm);
                     return inCategory && inSearch;
                 });
 
                 if (filtered.length === 0) {
+                    // Consider translating this message too if needed
                     componentGrid.innerHTML = `<p class="text-gray-600 col-span-1 md:col-span-2 text-center">No components match your criteria.</p>`;
                     return;
                 }
@@ -1019,18 +1031,19 @@
                     <div class="component-card">
                         <div class="p-5">
                             <div class="flex justify-between items-start">
-                                <h4 class="text-lg font-semibold text-blue-800">${item.name}</h4>
+                                <h4 class="text-lg font-semibold text-blue-800">${item.name[currentLanguage] || item.name['en']}</h4>
                                 <span class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">${item.category}</span>
                             </div>
                             <p class="text-sm text-gray-500 mb-2">Spec: ${item.spec} (Qty: ${item.qty})</p>
-                            <p class="text-sm text-gray-700">${item.role}</p>
+                            <p class="text-sm text-gray-700">${item.role[currentLanguage] || item.role['en']}</p>
                         </div>
                     </div>
                 `).join('');
             }
 
             function initCategories() {
-                if (!categoryFilters) return;
+                if (!categoryFilters) return; // Safety check
+                 // Assuming categories are universal and don't need translation. If they do, this needs adjustment.
                 const categories = ['All', ...new Set(allComponents.map(item => item.category))];
                 categoryFilters.innerHTML = categories.map(category => `
                     <button class="category-button ${category === 'All' ? 'active' : ''}" data-category="${category}">
@@ -1050,6 +1063,7 @@
                 });
             }
 
+            // Add event listeners AFTER defining the elements
             if (searchInput) {
                 searchInput.addEventListener('keyup', (e) => {
                     searchTerm = e.target.value.toLowerCase();
@@ -1057,9 +1071,12 @@
                 });
             }
 
-            initCategories();
-            renderComponents();
+            initCategories(); // Now safe to call
+            // renderComponents() is called within setLanguage
+            // --- END COMPONENT LIST SCRIPT ---
 
+
+            // --- UI INTERACTION SCRIPTS ---
             const overviewButtons = {
                 perception: document.getElementById('btn-perception'),
                 decision: document.getElementById('btn-decision'),
@@ -1084,7 +1101,7 @@
 
                 const isAlreadyActive = clickedButton.classList.contains('active');
 
-                // Hide all content and deactivate all buttons
+                // Hide all content and deactivate all buttons/wrappers
                 Object.values(overviewContents).forEach(el => el.classList.add('hidden'));
                 Object.values(overviewButtons).forEach(el => el.classList.remove('active'));
                 overviewCloudWrappers.forEach(el => {
@@ -1100,12 +1117,12 @@
                     wrapper.style.transform = 'translateY(0px) scale(1.08)'; // Keep it scaled
                 }
             }
-            
+
             overviewCloudWrappers.forEach(wrapper => {
                 wrapper.addEventListener('click', handleOverviewClick);
             });
 
-            // Adjusted tab button logic for the new cloud-button-wrapper
+            // Adjusted tab button logic for the build guide cloud buttons
             const tabButtons = {
                 mechanical: document.getElementById('tab-btn-mechanical'),
                 electronics: document.getElementById('tab-btn-electronics'),
@@ -1119,9 +1136,9 @@
                 calibration: document.getElementById('tab-content-calibration')
             };
 
-            const cloudWrappers = document.querySelectorAll('.cloud-button-wrapper[data-tab]');
+            const buildCloudWrappers = document.querySelectorAll('.cloud-button-wrapper[data-tab]');
 
-            function handleCloudClick(event) {
+            function handleBuildCloudClick(event) {
                 const wrapper = event.currentTarget; // The div with class .cloud-button-wrapper
                 const tabName = wrapper.dataset.tab; // Get the tab name from the data-tab attribute
 
@@ -1132,34 +1149,35 @@
 
                 const isAlreadyActive = clickedButton.classList.contains('active');
 
-                // Hide all content and deactivate all buttons
+                // Hide all content and deactivate all buttons/wrappers
                 Object.values(tabContents).forEach(el => el.classList.add('hidden'));
                 Object.values(tabButtons).forEach(el => el.classList.remove('active'));
-                cloudWrappers.forEach(el => {
-                    el.querySelector('.cloud-button')?.classList.remove('active');
+                buildCloudWrappers.forEach(el => {
+                    el.querySelector('.cloud-button')?.classList.remove('active'); // Deactivate inner button style
                     el.style.animationPlayState = 'running'; // Resume floating for all
                 });
 
 
                 if (!isAlreadyActive) {
-                    clickedButton.classList.add('active');
+                    clickedButton.classList.add('active'); // Activate inner button style
                     clickedContent.classList.remove('hidden');
-                    wrapper.style.animationPlayState = 'paused'; // Pause floating for active
+                    wrapper.style.animationPlayState = 'paused'; // Pause floating for active wrapper
                     wrapper.style.transform = 'translateY(0px) scale(1.08)'; // Keep it slightly scaled up and no float
                 }
             }
 
-            cloudWrappers.forEach(wrapper => {
-                wrapper.addEventListener('click', handleCloudClick);
+            buildCloudWrappers.forEach(wrapper => {
+                wrapper.addEventListener('click', handleBuildCloudClick);
             });
 
 
-            document.querySelectorAll('a.nav-link[href^="#"]').forEach(anchor => {
+            // Smooth scroll for nav links
+            document.querySelectorAll('a.nav-link[href^="#"], a.mobile-nav-link[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
                     e.preventDefault();
-                    document.querySelectorAll('a.nav-link').forEach(link => link.classList.remove('active'));
+                    document.querySelectorAll('a.nav-link, a.mobile-nav-link').forEach(link => link.classList.remove('active'));
                     this.classList.add('active');
-                    
+
                     const targetId = this.getAttribute('href');
                     const targetElement = document.querySelector(targetId);
                     if (targetElement) {
@@ -1169,14 +1187,15 @@
                     }
                 });
             });
-            
+
+            // BOM Chart
             const bomCtx = document.getElementById('bomChart')?.getContext('2d');
             if (bomCtx) {
                 const categoryCounts = allComponents.reduce((acc, item) => {
                     acc[item.category] = (acc[item.category] || 0) + 1;
                     return acc;
                 }, {});
-                
+
                 new Chart(bomCtx, {
                     type: 'doughnut',
                     data: {
@@ -1185,14 +1204,14 @@
                             label: 'Component Categories',
                             data: Object.values(categoryCounts),
                             backgroundColor: [
-                                '#0077b6',
-                                '#00b4d8',
-                                '#90e0ef',
-                                '#343a40',
-                                '#6c757d',
-                                '#adb5bd',
-                                '#ced4da',
-                                '#ffb703'
+                                '#0077b6', // Computing
+                                '#00b4d8', // Structure
+                                '#90e0ef', // Motion
+                                '#343a40', // Payload
+                                '#6c757d', // Vision
+                                '#adb5bd', // Power
+                                '#ced4da', // Control
+                                '#ffb703'  // Fallback color
                             ],
                             borderColor: '#f8f7f4',
                             borderWidth: 3
@@ -1215,8 +1234,12 @@
                     }
                 });
             }
+             // --- END UI INTERACTION SCRIPTS ---
+
+             // Set initial language AFTER all functions and variables are defined
+            setLanguage(currentLanguage);
+
         });
     </script>
 </body>
 </html>
-
