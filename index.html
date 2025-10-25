@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Pest Repellent Turret | Project Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f4;
+            color: #343a40;
+            padding-top: 64px; 
+        }
+        .nav-link {
+            @apply px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-white hover:bg-blue-600 transition-colors;
+        }
+        .nav-link.active {
+            @apply bg-blue-700 text-white;
+        }
+        .content-section {
+            @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16;
+        }
+
+        /* NEW KEYFRAMES */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .build-button {
+            @apply w-full text-left p-6 bg-white rounded-lg shadow-lg flex items-center space-x-4 transition-all duration-300 transform;
+            /* Apply the animation */
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        /* Stagger animations for a 'cloudy' effect */
+        #tab-btn-electronics { animation-delay: -3s; }
+        #tab-btn-calibration { animation-delay: -1.5s; }
+        #tab-btn-ai { animation-delay: -4.5s; }
+
+
+        .build-button.active {
+            @apply ring-4 ring-blue-500 ring-opacity-75 scale-105 bg-blue-50;
+            animation-play-state: paused; /* Stop floating when active */
+            transform: scale(1.05); /* Keep scale */
+        }
+        .build-button:not(.active) {
+            @apply hover:bg-gray-50;
+        }
+
+        /* Stop float on hover and scale up */
+        .build-button:hover:not(.active) {
+            animation-play-state: paused;
+            transform: scale(1.05);
+            @apply shadow-xl;
+        }
+        
+        .build-icon {
+            @apply text-5xl text-blue-600 w-12;
+        }
+        .tab-content {
+            @apply bg-white p-6 rounded-b-lg rounded-tr-lg shadow-md mt-6;
+        }
+        
+        /* REMOVED .overview-card styles */
+        
+        .overview-content {
+             @apply bg-white p-6 rounded-lg shadow-xl max-w-3xl mx-auto mt-6;
+        }
+
+        /* NEW styles for System Architecture clouds */
+        .overview-cloud-wrapper {
+            background: linear-gradient(135deg, rgba(147, 197, 253, 0.7), rgba(96, 165, 250, 0.7)); /* Soft blue gradient */
+            border-radius: 50% 30% 50% 30% / 30% 50% 30% 50%; /* Cloud shape */
+            padding: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease-in-out;
+            animation: float 6s ease-in-out infinite; /* Keep the floating animation */
+            cursor: pointer;
+            display: flex; /* Ensure content is centered */
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            width: 280px; /* Set a fixed width */
+            height: 280px; /* Set a fixed height */
+        }
+        .overview-cloud-wrapper:hover {
+            transform: translateY(-15px) scale(1.08); /* Lift and scale more on hover */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation-play-state: paused; /* Stop floating on hover */
+        }
+        /* Stagger animations for overview clouds */
+        #cloud-perception { animation-delay: -1s; }
+        #cloud-decision { animation-delay: -3s; }
+        #cloud-actuation { animation-delay: -5s; }
+
+        .overview-button {
+            @apply flex flex-col items-center justify-center p-4 bg-white bg-opacity-80 rounded-full shadow-inner; /* Inner white circle */
+            color: #1e40af; /* Darker blue text */
+            transition: all 0.3s ease-in-out;
+            width: 100%; 
+            height: 100%; 
+            aspect-ratio: 1/1; 
+        }
+        .overview-button:hover {
+            @apply bg-blue-50;
+            color: #1c3580;
+        }
+        .overview-button.active .overview-text-title {
+            color: #000; /* Darken text when active */
+        }
+        .overview-button.active .overview-text-description {
+            color: #333; /* Darken text when active */
+        }
+        
+        .overview-cloud-wrapper.active {
+             animation-play-state: paused; /* Stop floating when active */
+             transform: translateY(0px) scale(1.08);
+        }
+
+        .overview-icon-inner {
+            @apply text-5xl;
+            color: #2563eb; /* Blue icon color */
+        }
+        .overview-text-title {
+            @apply text-xl font-semibold mt-2;
+            color: #1e40af; /* Primary blue for title */
+        }
+        .overview-text-description {
+            @apply text-sm text-gray-700 mt-1;
+            color: #4a5568; /* Sub-text color */
+        }
+        /* END of new styles */
+
+
+        .component-card {
+            @apply bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300;
+        }
+        .category-button {
+            @apply px-4 py-2 text-sm font-medium rounded-full cursor-pointer transition-all;
+        }
+        .category-button.active {
+            @apply bg-blue-700 text-white shadow-lg;
+        }
+        .category-button:not(.active) {
+            @apply bg-white text-blue-700 hover:bg-blue-100 shadow;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        model-viewer {
+            width: 100%;
+            height: 600px;
+            background-color: #f8f7f4;
+            --poster-color: #f8f7f4;
+        }
+
+        /* Custom Cloud-like Button Styles */
+        .cloud-button-wrapper {
+            background: linear-gradient(135deg, rgba(147, 197, 253, 0.7), rgba(96, 165, 250, 0.7)); /* Soft blue gradient */
+            border-radius: 50% 30% 50% 30% / 30% 50% 30% 50%; /* Cloud shape */
+            padding: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease-in-out;
+            animation: float 6s ease-in-out infinite; /* Keep the floating animation */
+            cursor: pointer;
+            display: flex; /* Ensure content is centered */
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .cloud-button-wrapper:hover {
+            transform: translateY(-15px) scale(1.08); /* Lift and scale more on hover */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation-play-state: paused; /* Stop floating on hover */
+        }
+
+        /* Adjust individual button delays to maintain cloudy movement */
+        #cloud-mech { animation-delay: -2s; }
+        #cloud-elec { animation-delay: -4.5s; }
+        #cloud-ai { animation-delay: -1.0s; }
+        #cloud-calib { animation-delay: -3.5s; }
+
+        .cloud-button {
+            @apply flex flex-col items-center justify-center p-4 bg-white bg-opacity-80 rounded-full shadow-inner; /* Inner white circle */
+            color: #1e40af; /* Darker blue text */
+            transition: all 0.3s ease-in-out;
+            width: 100%; /* Make inner button take full width of cloud wrapper */
+            height: 100%; /* Make inner button take full height of cloud wrapper */
+            aspect-ratio: 1/1; /* Ensure circular shape for inner button */
+        }
+        .cloud-button:hover {
+            @apply bg-blue-50;
+            color: #1c3580;
+        }
+        .cloud-button.active .cloud-text-title {
+            color: #000; /* Darken text when active */
+        }
+        .cloud-button.active .cloud-text-description {
+            color: #333; /* Darken text when active */
+        }
+
+        .cloud-text-title {
+            @apply text-xl font-semibold mt-2;
+            color: #1e40af; /* Primary blue for title */
+        }
+        .cloud-text-description {
+            @apply text-sm text-gray-700 mt-1;
+            color: #4a5568; /* Sub-text color */
+        }
+        .cloud-icon {
+            @apply text-5xl;
+            color: #2563eb; /* Blue icon color */
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="text-2xl font-bold text-blue-700">AI Turret Explorer</span>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-4 sm:items-center">
+                    <a href="#home" class="nav-link">Home</a>
+                    <a href="#turret-3d" class="nav-link">3D Turret View</a>
+                    <a href="#overview" class="nav-link">System Overview</a>
+                    <a href="#components" class="nav-link">Components</a>
+                    <a href="#build" class="nav-link">Build Guides</a>
+                    <a href="#safety" class="nav-link">Safety</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section id="home" class="content-section bg-white shadow-inner">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">AI-Powered Autonomous Turret</h1>
+                <p class="mt-6 text-xl leading-8 text-gray-700 max-w-3xl mx-auto">An interactive guide to the construction and programming of an intelligent, non-lethal wildlife deterrent. This system is designed to identify and discourage specific animals from protected areas while actively detecting and avoiding human presence.</p>
+                <div class="mt-10 flex items-center justify-center gap-x-6">
+                    <a href="#overview" class="rounded-md bg-blue-700 px-5 py-3 text-lg font-semibold text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">Explore the System</a>
+                </div>
+            </div>
+            <div class="mt-16 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+                    <span class="text-6xl" role="img" aria-label="macaque">🐵</span>
+                    <h3 class="mt-4 text-lg font-semibold">Target: Macaque</h3>
+                    <p class="text-gray-600">Formosan Macaque (*Macaca cyclopis*)</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+                    <span class="text-6xl" role="img" aria-label="deer">🦌</span>
+                    <h3 class="mt-4 text-lg font-semibold">Target: Muntjac</h3>
+                    <p class="text-gray-600">Reeves's Muntjac (*Muntiacus reevesi*)</p>
+                </div>
+                <div class="bg-red-50 p-6 rounded-lg shadow-md border-2 border-red-300">
+                    <span class="text-6xl" role="img" aria-label="person">👤</span>
+                    <h3 class="mt-4 text-lg font-semibold text-red-800">Avoid: Human</h3>
+                    <p class="text-red-700">System enters safe mode on human detection.</p>
+                </div>
+            </div>
+        </section>
+
+        
+
+<section id="turret-3d" class="content-section bg-gray-100 shadow-inner">
+            <h2 class="text-3xl font-bold text-center mb-4">Interactive 3D Turret View</h2>
+            <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12">Explore the AI Turret from every angle! Use your mouse/finger to rotate, pan, and zoom the model. This interactive view allows you to inspect the mechanical and electronic components in detail.</p>
+            <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
+                
+
+<model-viewer 
+                    src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
+                    poster="https://modelviewer.dev/shared-assets/models/Astronaut.webp"
+                    alt="Interactive 3D model of the AI Turret (using a placeholder Astronaut)" 
+                    ar 
+                    ar-modes="webxr scene-viewer quick-look" 
+                    camera-controls 
+                    touch-action="pan-y"
+                    auto-rotate
+                    shadow-intensity="1"
+                    environment-image="neutral">
+                    <div class="progress-bar hide" slot="progress-bar">
+                        <div class="update-bar"></div>
+                    </div>
+                </model-viewer>
+                <div class="p-6 text-center text-gray-600 text-sm">
+                    <p>
+                        <strong>Note:</strong> This is an interactive 3D model viewer. It is currently displaying a placeholder "Astronaut" model.
+                    </p>
+                    <p class="mt-2 text-blue-700">
+                        To show your own model, replace the `src` URL in the HTML with a public link to your own `.glb` or `.gltf` file.
+                    </p>
+                </div>
+            </div>
+        </section>
+        
+
+<section id="overview" class="content-section">
+            <h2 class="text-3xl font-bold text-center mb-4">System Architecture</h2>
+            <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12">The turret operates on a classic "Perception-Decision-Actuation" loop. This model explains how the components work together in real-time. Click a cloud to learn more about its function and key components.</p>
+            
+            <div class="flex flex-col md:flex-row items-center justify-center gap-8 mb-8">
+                
+                <div id="cloud-perception" class="overview-cloud-wrapper" data-overview="perception">
+                    <button class="overview-button" id="btn-perception">
+                        <span class="overview-icon-inner" role="img" aria-label="eye">👁️</span>
+                        <h3 class="overview-text-title">1. Perception</h3>
+                        <p class="overview-text-description">Sensing the environment.</p>
+                    </button>
+                </div>
+                
+                <div id="cloud-decision" class="overview-cloud-wrapper" data-overview="decision">
+                     <button class="overview-button" id="btn-decision">
+                        <span class="overview-icon-inner" role="img" aria-label="brain">🧠</span>
+                        <h3 class="overview-text-title">2. Decision</h3>
+                        <p class="overview-text-description">Analyzing and planning.</p>
+                    </button>
+                </div>
+                
+                <div id="cloud-actuation" class="overview-cloud-wrapper" data-overview="actuation">
+                     <button class="overview-button" id="btn-actuation">
+                        <span class="overview-icon-inner" role="img" aria-label="gear">⚙️</span>
+                        <h3 class="overview-text-title">3. Actuation</h3>
+                        <p class="overview-text-description">Taking physical action.</p>
+                    </button>
+                </div>
+            </div>
+
+            <div id="content-perception" class="overview-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-3">Perception: The 360° Vision System</h3>
+                <p class="text-gray-700">The system perceives its environment using a quad-camera array (4x Logitech C615 webcams) providing a seamless 360-degree panoramic view. This continuous stream of visual data is the primary sensory input, fed directly to the AI model for analysis. This setup eliminates blind spots and ensures comprehensive situational awareness.</p>
+            </div>
+            
+            <div id="content-decision" class="overview-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-3">Decision: The AI Brain (Jetson & YOLO)</h3>
+                <p class="text-gray-700">The heart of the decision-making process is the NVIDIA Jetson Orin Nano. It runs a custom-trained YOLO model, processing all camera feeds in real-time. This model detects and classifies objects (macaque, muntjac, human). The control software applies a simple logic: if a human is seen, enter "Safe Mode." If a target animal is seen (and no human), calculate its position and initiate tracking.</p>
+            </div>
+            
+            <div id="content-actuation" class="overview-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-3">Actuation: The Mechanical Response</h3>
+                <p class="text-gray-700">Based on the AI's decision, the Jetson commands the physical hardware. It sends signals to two NEMA 23 stepper motors via DM542S drivers, which move the high-torque herringbone gear pan-tilt mechanism to aim the paintball gun. To fire, it sends a signal to a relay, which activates a 24V solenoid to pull the trigger. This entire loop repeats multiple times per second.</p>
+            </div>
+        </section>
+
+        <section id="components" class="content-section">
+            <h2 class="text-3xl font-bold text-center mb-4">Interactive Bill of Materials</h2>
+            <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12">This is the complete list of components required for the project. Use the filters to explore parts by category or use the search bar to find a specific item. A breakdown of component categories is shown in the chart.</p>
+            
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="w-full md:w-1/3">
+                    <h3 class="text-2xl font-semibold text-center mb-4">Component Categories</h3>
+                    <div class="chart-container">
+                        <canvas id="bomChart"></canvas>
+                    </div>
+                    
+                    <h3 class="text-2xl font-semibold text-center mb-4 mt-12">Key Software Stack</h3>
+                    <div class="space-y-3">
+                        <div class="p-4 bg-white rounded-lg shadow-md">
+                            <h4 class="font-semibold text-blue-800">Operating System</h4>
+                            <p class="text-sm text-gray-700">NVIDIA JetPack SDK (on Jetson)</p>
+                            <p class="text-xs text-gray-500">Includes Ubuntu, CUDA, cuDNN, and TensorRT.</p>
+                        </div>
+                        <div class="p-4 bg-white rounded-lg shadow-md">
+                            <h4 class="font-semibold text-blue-800">Core Language</h4>
+                            <p class="text-sm text-gray-700">Python 3.x</p>
+                            <p class="text-xs text-gray-500">For the main control script, inference, and hardware I/O.</p>
+                        </div>
+                        <div class="p-4 bg-white rounded-lg shadow-md">
+                            <h4 class="font-semibold text-blue-800">AI / Object Detection</h4>
+                            <p class="text-sm text-gray-700">Ultralytics YOLO (v11 cited, v8+ common)</p>
+                            <p class="text-xs text-gray-500">Used for training and running the detection model.</p>
+                        </div>
+                        <div class="p-4 bg-white rounded-lg shadow-md">
+                            <h4 class="font-semibold text-blue-800">Key Libraries</h4>
+                            <p class="text-sm text-gray-700">OpenCV, TensorRT, RPi.GPIO (or similar)</p>
+                            <p class="text-xs text-gray-500">For camera vision, model acceleration, and motor control.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="w-full md:w-2/3">
+                    <div class="mb-4">
+                        <input type="text" id="searchInput" class="w-full px-4 py-3 rounded-lg shadow-inner border border-gray-300" placeholder="Search for a component (e.g., 'Jetson', 'NEMA 23')...">
+                    </div>
+                    <div id="category-filters" class="flex flex-wrap gap-2 mb-6">
+                    </div>
+                    
+                    <div id="component-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="build" class="content-section bg-gray-100 shadow-inner">
+            <h2 class="text-3xl font-bold text-center mb-12">Interactive Build Guides</h2>
+            <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12">Explore the four core phases of building this AI Turret. Click on any cloud below to reveal detailed steps, challenges, and insights for that stage of development.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 justify-items-center">
+                
+                <!-- Mechanical Assembly Cloud Button --><div id="cloud-mech" class="cloud-button-wrapper" data-tab="mechanical">
+                    <button class="cloud-button" id="tab-btn-mechanical">
+                        <span class="cloud-icon" role="img" aria-label="gears">🔩</span>
+                        <h3 class="cloud-text-title">Mechanical Assembly</h3>
+                        <p class="cloud-text-description">Physical frame & motion system</p>
+                    </button>
+                </div>
+                
+                <!-- Electronics & Wiring Cloud Button --><div id="cloud-elec" class="cloud-button-wrapper" data-tab="electronics">
+                    <button class="cloud-button" id="tab-btn-electronics">
+                        <span class="cloud-icon" role="img" aria-label="circuit">⚡</span>
+                        <h3 class="cloud-text-title">Electronics & Wiring</h3>
+                        <p class="cloud-text-description">Power, logic & control components</p>
+                    </button>
+                </div>
+                
+                <!-- AI Model & Software Cloud Button --><div id="cloud-ai" class="cloud-button-wrapper" data-tab="ai">
+                    <button class="cloud-button" id="tab-btn-ai">
+                        <span class="cloud-icon" role="img" aria-label="brain">🧠</span>
+                        <h3 class="cloud-text-title">AI Model & Software</h3>
+                        <p class="cloud-text-description">Training vision & control script</p>
+                    </button>
+                </div>
+                
+                <!-- Calibration & Testing Cloud Button --><div id="cloud-calib" class="cloud-button-wrapper" data-tab="calibration">
+                    <button class="cloud-button" id="tab-btn-calibration">
+                        <span class="cloud-icon" role="img" aria-label="target">🎯</span>
+                        <h3 class="cloud-text-title">Calibration & Testing</h3>
+                        <p class="cloud-text-description">Aligning vision & hardware</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Collapsible content sections --><div id="tab-content-mechanical" class="tab-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-4">Phase 1: Mechanical Assembly</h3>
+                <p class="mb-6 text-gray-700">This phase involves building the physical structure and motion system. Precision and rigidity are the primary goals. The core of this phase is the high-torque herringbone gear drive, which provides backlash-free, precise aiming.</p>
+                <ul class="space-y-4">
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg">1. Construct the Main Frame</h4>
+                        <p class="text-gray-600">Assemble the 2020 aluminum extrusion base and gantry. Use corner brackets and T-nuts to create a rigid skeleton, ensuring all corners are perfectly square.</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg">2. Fabricate & Assemble Pan-Tilt Drive</h4>
+                        <p class="text-gray-600">3D print the large herringbone gears (pan and tilt) and motor pinions from PETG or ABS. Mount the pan motor inside the frame, meshing with the main ring gear which sits on a thrust bearing. Assemble the tilt gantry with its motor and gear, supported by deep groove ball bearings.</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg">3. Mount Payload & Vision System</h4>
+                        <p class="text-gray-600">Secure the paintball gun in its 3D printed cradle. Install the 24V solenoid using a custom bracket, aligning it perfectly with the trigger. Mount the four webcams on the stationary base frame to create the overlapping 360° field of view.</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="tab-content-electronics" class="tab-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-4">Phase 2: Electronics & Wiring</h3>
+                <p class="mb-6 text-gray-700">This phase connects all components, distributing power and control signals. A clean, methodical wiring plan with proper grounding is essential to prevent electrical noise from interfering with the Jetson's logic signals.</p>
+                <ul class="space-y-4">
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg">1. Power Distribution</h4>
+                        <p class="text-gray-600">Install the 12V Mean Well PSU. Use a terminal block to distribute 12V power to the Jetson, motor drivers, and two DC-DC converters. One buck converter steps 12V down to 5V (for logic), and one boost converter steps 12V up to 24V (for the solenoid).</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg">2. Motion Control Wiring</h4>
+                        <p class="text-gray-600">Connect the Jetson's GPIO pins to the `PUL+` (Pulse) and `DIR+` (Direction) inputs on the DM542S motor drivers. Connect the driver `PUL-` and `DIR-` pins to the Jetson's GND. Connect the four motor wires (A+, A-, B+, B-) from each NEMA 23 to its corresponding driver.</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg">3. Firing & Vision Connections</h4>
+                        <p class="text-gray-600">Wire the 24V solenoid to a 1-channel relay. The relay's logic side (VCC, GND, IN) is controlled by a 5V signal from the Jetson. To avoid USB bandwidth limits, connect two cameras to the Jetson's USB-A ports and the other two cameras to a powered USB-C hub.</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="tab-content-ai" class="tab-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-4">Phase 3: AI Model & Software</h3>
+                <p class="mb-6 text-gray-700">This phase involves creating the "brain" of the turret. A custom object detection model is trained to recognize targets and the control script integrates all hardware into one autonomous system.</p>
+                <ul class="space-y-4">
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg">1. Build the Custom Dataset</h4>
+                        <p class="text-gray-600">Gather thousands of images for three classes: `formosan_macaque`, `muntjac`, and `human`. The 'human' class must be extremely diverse (poses, clothing, lighting) to ensure safety.</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg">2. Annotate and Train (YOLO)</h4>
+                        <p class="text-gray-600">Use a tool like CVAT or Roboflow to draw bounding boxes around all objects in the dataset. Train a YOLO model (using the `ultralytics` package) on this custom dataset. This "transfer learning" process fine-tunes a pre-trained model for this specific task, resulting in a `best.pt` file.</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg">3. Deploy with TensorRT & Write Control Script</h4>
+                        <p class="text-gray-600">On the Jetson, convert the `best.pt` model to a `best.engine` file using `model.export(format='engine')`. This provides a massive speedup. The final Python script uses multi-threading to read all cameras, runs inference, and implements a state machine (SAFE, TRACKING, SEARCHING) to control the PID motor loops and firing relay.</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="tab-content-calibration" class="tab-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-4">Phase 4: Calibration & Testing</h3>
+                <p class="mb-6 text-gray-700">This final phase "glues" the vision system to the motion system, ensuring that what the camera sees is where the gun points. This is followed by performance tuning and critical safety checks.</p>
+                <ul class="space-y-4">
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg">1. Intrinsic Camera Calibration</h4>
+                        <p class="text-gray-600">For each of the four cameras, use OpenCV and a printed chessboard pattern to calculate the lens distortion. This step generates a camera matrix and distortion coefficients that are used to `cv2.undistort()` every frame, ensuring all lines are straight.</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg">2. Turret-to-Camera Mapping (Homography)</h4>
+                        <p class="text-gray-600">This is the most critical step. Mount a laser pointer on the gun. Write a script to move the turret to a grid of known angles. At each point, record the laser dot's `(pixel_x, pixel_y)` coordinate. This creates a dataset mapping angles to pixels, which is used to compute a transformation matrix. This matrix allows the code to instantly convert a target's pixel location into the motor angles needed to aim at it.</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg">3. PID Tuning & Field Testing</h4>
+                        <p class="text-gray-600">In a safe area, tune the `kP`, `kI`, and `kD` gains for the pan and tilt PID controllers. This ensures the tracking is fast, smooth, and does not overshoot the target. Start with P, then D, then I.</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="safety" class="content-section bg-red-100 border-t-4 border-red-500">
+            <h2 class="text-3xl font-bold text-center text-red-800 mb-8">Safety & Ethical Protocols</h2>
+            <p class="text-lg text-red-700 text-center max-w-3xl mx-auto mb-12">Safety is the highest priority. This system is an autonomous tool, and its development and operation carry significant responsibility. These protocols are mandatory and non-negotiable.</p>
+            <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-xl p-8">
+                <ul class="space-y-6">
+                    <li class="flex items-start">
+                        <span class="text-3xl mr-4 text-red-600" role="img" aria-label="stop button">🛑</span>
+                        <div>
+                            <h4 class="text-xl font-semibold text-red-800">Physical E-Stop</h4>
+                            <p class="text-gray-700">A large, red, physical "Emergency Stop" button must be wired to cut all power to the motors and firing solenoid, providing a foolproof hardware-level override.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-3xl mr-4 text-red-600" role="img" aria-label="shield">🛡️</span>
+                        <div>
+                            <h4 class="text-xl font-semibold text-red-800">Robust Human Detection</h4>
+                            <p class="text-gray-700">The "Safe Mode" is the primary software defense. The confidence threshold for human detection must be set conservatively low (e.g., 0.3) to prioritize avoiding false negatives (failing to see a human) over false positives.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-3xl mr-4 text-red-600" role="img"aria-label="map">🗺️</span>
+                        <div>
+                            <h4 class="text-xl font-semibold text-red-800">Geofencing</h4>
+                            <p class="text-gray-700">The turret's operational range must be programmatically limited to prevent it from aiming or firing outside the designated protected area.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-3xl mr-4 text-red-600" role="img" aria-label="person watching">👀</span>
+                        <div>
+                            <h4 class="text-xl font-semibold text-red-800">Supervised Operation</h4>
+                            <p class="text-gray-700">The system must never be left completely unattended. A human operator must always be present and able to intervene using the E-Stop.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 mt-16 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p>&copy; 2025 AI Turret Project Explorer.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const allComponents = [
+                { category: 'Computing', name: 'Jetson Orin Nano Dev Kit', spec: '-', qty: 1, role: 'Central processing unit for AI inference and system control.' },
+                { category: 'Structure', name: '2020 Aluminum Extrusion', spec: '45 cm', qty: 12, role: 'Forms the primary structural frame.' },
+                { category: 'Structure', name: '2020 Aluminum Extrusion', spec: '100 cm', qty: 12, role: 'Forms the primary structural frame.' },
+                { category: 'Structure', name: '2020 Corner Brackets', spec: '90-degree', qty: 40, role: 'Connects extrusions to form rigid frame corners.' },
+                { category: 'Structure', name: 'M5 T-Nuts', spec: 'For 2020', qty: 100, role: 'Provides threaded mounting points in extrusion slots.' },
+                { category: 'Structure', name: 'M5 Button Head Cap Screws', spec: '8 mm', qty: 100, role: 'Fastens components to T-nuts.' },
+                { category: 'Motion', name: 'NEMA 23 Stepper Motor', spec: 'High Torque (>2 N·m)', qty: 2, role: 'Provides rotational force for pan and tilt axes.' },
+                { category: 'Motion', name: 'Microstep Driver', spec: 'DM542S', qty: 2, role: 'Controls the current and stepping of the NEMA 23 motors.' },
+                { category: 'Motion', name: 'NEMA 23 Mounting Plate', spec: '60x90 mm', qty: 2, role: 'Securely mounts the stepper motors to the frame.' },
+                { category: 'Motion', name: 'Large Herringbone Ring Gear', spec: '3D Printed, ~200mm OD', qty: 1, role: 'Pan axis main gear for high torque and precision.' },
+                { category: 'Motion', name: 'Large Herringbone Tilt Gear', spec: '3D Printed, ~120mm OD', qty: 1, role: 'Tilt axis main gear.' },
+                { category: 'Motion', name: 'Motor Pinion Gear', spec: '3D Printed', qty: 2, role: 'Small gear attached to the motor shaft.' },
+                { category: 'Motion', name: 'Thrust Bearing', spec: 'e.g., 51110 (50mm ID)', qty: 1, role: 'Supports the axial load of the rotating turret.' },
+                { category: 'Motion', name: 'Deep Groove Ball Bearings', spec: 'e.g., 6806-2RS (30mm ID)', qty: 2, role: 'Supports the tilt axis shaft for smooth rotation.' },
+                { category: 'Payload', name: 'Paintball Gun', spec: 'Valken Razorback', qty: 1, role: 'The projectile delivery system.' },
+                { category: 'Payload', name: 'Push-Pull Solenoid', spec: 'DC 24V, 35mm stroke', qty: 1, role: 'Actuates the trigger mechanism.' },
+                { category: 'Payload', name: 'Solenoid Mounting Bracket', spec: 'Custom 3D Printed', qty: 1, role: 'Holds the solenoid in a precise position.' },
+                { category: 'Vision', name: 'Webcam', spec: 'Logitech C615', qty: 4, role: 'Provides 360-degree video input.' },
+                { category: 'Vision', name: 'USB-C to USB-A Hub', spec: '4-port, powered', qty: 1, role: 'Bypasses bandwidth limitations on the main USB hub.' },
+                { category: 'Vision', name: 'Camera Mounts', spec: 'Custom 3D Printed', qty: 4, role: 'Positions cameras on the frame.' },
+                { category: 'Power', name: 'Switching Power Supply', spec: 'Mean Well LRS-150-12', qty: 1, role: 'Provides main 12V DC power from AC.' },
+                { category: 'Power', name: 'DC-DC Buck Converter', spec: 'LM2596', qty: 1, role: 'Steps down 12V to 5V for logic.' },
+                { category: 'Power', name: 'DC-DC Boost Converter', spec: 'XL6009', qty: 1, role: 'Steps up 12V to 24V for the solenoid.' },
+                { category: 'Power', name: 'AC Power Cord', spec: '3-prong, grounded', qty: 1, role: 'Connects the PSU to mains power.' },
+                { category: 'Control', name: 'ESP32 Dev Board', spec: 'Optional', qty: 1, role: 'Optional secondary controller or GPIO expander.' },
+                { category: 'Control', name: 'Relay Module', spec: '1-channel, 5V logic', qty: 1, role: 'Switches the 24V power to the solenoid.' },
+                { category: 'Control', name: 'Terminal Block Connectors', spec: 'Screw terminals', qty: 1, role: 'Facilitates clean power and signal distribution.' },
+                { category: 'Control', name: 'Jumper Wires & Hookup Wire', spec: '18-22 AWG', qty: 1, role: 'For all electrical connections.' }
+            ];
+
+            let activeCategory = 'All';
+            let searchTerm = '';
+
+            const componentGrid = document.getElementById('component-grid');
+            const categoryFilters = document.getElementById('category-filters');
+            const searchInput = document.getElementById('searchInput');
+
+            function renderComponents() {
+                if (!componentGrid) return;
+                const filtered = allComponents.filter(item => {
+                    const inCategory = activeCategory === 'All' || item.category === activeCategory;
+                    const inSearch = searchTerm === '' || item.name.toLowerCase().includes(searchTerm) || item.role.toLowerCase().includes(searchTerm);
+                    return inCategory && inSearch;
+                });
+
+                if (filtered.length === 0) {
+                    componentGrid.innerHTML = `<p class="text-gray-600 col-span-1 md:col-span-2 text-center">No components match your criteria.</p>`;
+                    return;
+                }
+
+                componentGrid.innerHTML = filtered.map(item => `
+                    <div class="component-card">
+                        <div class="p-5">
+                            <div class="flex justify-between items-start">
+                                <h4 class="text-lg font-semibold text-blue-800">${item.name}</h4>
+                                <span class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">${item.category}</span>
+                            </div>
+                            <p class="text-sm text-gray-500 mb-2">Spec: ${item.spec} (Qty: ${item.qty})</p>
+                            <p class="text-sm text-gray-700">${item.role}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function initCategories() {
+                if (!categoryFilters) return;
+                const categories = ['All', ...new Set(allComponents.map(item => item.category))];
+                categoryFilters.innerHTML = categories.map(category => `
+                    <button class="category-button ${category === 'All' ? 'active' : ''}" data-category="${category}">
+                        ${category}
+                    </button>
+                `).join('');
+
+                categoryFilters.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') {
+                        activeCategory = e.target.dataset.category;
+                        document.querySelectorAll('#category-filters .category-button').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        e.target.classList.add('active');
+                        renderComponents();
+                    }
+                });
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('keyup', (e) => {
+                    searchTerm = e.target.value.toLowerCase();
+                    renderComponents();
+                });
+            }
+
+            initCategories();
+            renderComponents();
+
+            const overviewButtons = {
+                perception: document.getElementById('btn-perception'),
+                decision: document.getElementById('btn-decision'),
+                actuation: document.getElementById('btn-actuation')
+            };
+            const overviewContents = {
+                perception: document.getElementById('content-perception'),
+                decision: document.getElementById('content-decision'),
+                actuation: document.getElementById('content-actuation')
+            };
+            const overviewCloudWrappers = document.querySelectorAll('.overview-cloud-wrapper');
+
+
+            function handleOverviewClick(event) {
+                const wrapper = event.currentTarget;
+                const section = wrapper.dataset.overview;
+
+                const clickedButton = overviewButtons[section];
+                const clickedContent = overviewContents[section];
+
+                if (!clickedButton || !clickedContent) return;
+
+                const isAlreadyActive = clickedButton.classList.contains('active');
+
+                // Hide all content and deactivate all buttons
+                Object.values(overviewContents).forEach(el => el.classList.add('hidden'));
+                Object.values(overviewButtons).forEach(el => el.classList.remove('active'));
+                overviewCloudWrappers.forEach(el => {
+                    el.classList.remove('active');
+                    el.style.animationPlayState = 'running'; // Resume floating
+                });
+
+                if (!isAlreadyActive) {
+                    clickedButton.classList.add('active');
+                    clickedContent.classList.remove('hidden');
+                    wrapper.classList.add('active'); // Add active to wrapper
+                    wrapper.style.animationPlayState = 'paused'; // Pause floating
+                    wrapper.style.transform = 'translateY(0px) scale(1.08)'; // Keep it scaled
+                }
+            }
+            
+            overviewCloudWrappers.forEach(wrapper => {
+                wrapper.addEventListener('click', handleOverviewClick);
+            });
+
+            // Adjusted tab button logic for the new cloud-button-wrapper
+            const tabButtons = {
+                mechanical: document.getElementById('tab-btn-mechanical'),
+                electronics: document.getElementById('tab-btn-electronics'),
+                ai: document.getElementById('tab-btn-ai'),
+                calibration: document.getElementById('tab-btn-calibration')
+            };
+            const tabContents = {
+                mechanical: document.getElementById('tab-content-mechanical'),
+                electronics: document.getElementById('tab-content-electronics'),
+                ai: document.getElementById('tab-content-ai'),
+                calibration: document.getElementById('tab-content-calibration')
+            };
+
+            const cloudWrappers = document.querySelectorAll('.cloud-button-wrapper[data-tab]');
+
+            function handleCloudClick(event) {
+                const wrapper = event.currentTarget; // The div with class .cloud-button-wrapper
+                const tabName = wrapper.dataset.tab; // Get the tab name from the data-tab attribute
+
+                const clickedButton = tabButtons[tabName];
+                const clickedContent = tabContents[tabName];
+
+                if (!clickedButton || !clickedContent) return;
+
+                const isAlreadyActive = clickedButton.classList.contains('active');
+
+                // Hide all content and deactivate all buttons
+                Object.values(tabContents).forEach(el => el.classList.add('hidden'));
+                Object.values(tabButtons).forEach(el => el.classList.remove('active'));
+                cloudWrappers.forEach(el => {
+                    el.querySelector('.cloud-button')?.classList.remove('active');
+                    el.style.animationPlayState = 'running'; // Resume floating for all
+                });
+
+
+                if (!isAlreadyActive) {
+                    clickedButton.classList.add('active');
+                    clickedContent.classList.remove('hidden');
+                    wrapper.style.animationPlayState = 'paused'; // Pause floating for active
+                    wrapper.style.transform = 'translateY(0px) scale(1.08)'; // Keep it slightly scaled up and no float
+                }
+            }
+
+            cloudWrappers.forEach(wrapper => {
+                wrapper.addEventListener('click', handleCloudClick);
+            });
+
+
+            document.querySelectorAll('a.nav-link[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelectorAll('a.nav-link').forEach(link => link.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            const bomCtx = document.getElementById('bomChart')?.getContext('2d');
+            if (bomCtx) {
+                const categoryCounts = allComponents.reduce((acc, item) => {
+                    acc[item.category] = (acc[item.category] || 0) + 1;
+                    return acc;
+                }, {});
+                
+                new Chart(bomCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(categoryCounts),
+                        datasets: [{
+                            label: 'Component Categories',
+                            data: Object.values(categoryCounts),
+                            backgroundColor: [
+                                '#0077b6',
+                                '#00b4d8',
+                                '#90e0ef',
+                                '#343a40',
+                                '#6c757d',
+                                '#adb5bd',
+                                '#ced4da',
+                                '#ffb703'
+                            ],
+                            borderColor: '#f8f7f4',
+                            borderWidth: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    color: '#343a40',
+                                    font: {
+                                        family: 'Inter'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
