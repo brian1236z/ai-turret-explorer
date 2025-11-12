@@ -389,10 +389,16 @@
             <h2 class="text-3xl font-bold text-center mb-4" data-lang-key="overview_title">System Architecture</h2>
             <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12" data-lang-key="overview_subtitle">The turret operates on a classic "Perception-Decision-Actuation" loop. This model explains how the components work together in real-time. Click a cloud to learn more about its function and key components.</p>
 
+            <!-- MOVED: Container for inactive buttons ABOVE content is now FIRST -->
+            <div id="inactive-buttons-container-above" class="flex flex-col md:flex-row items-center justify-center gap-8 mb-8">
+                <!-- Inactive buttons (like B1, B2) might move here -->
+            </div>
+
+            <!-- MOVED: Container for the ACTIVE button is now SECOND -->
             <div id="overview-button-container" class="flex flex-col md:flex-row items-center justify-center gap-8 mb-8">
 
                 <!-- Perception Cloud -->
-                <div id="cloud-perception" class="overview-cloud-wrapper" data-overview="perception">
+                <div id="cloud-perception" class="overview-cloud-wrapper" data-overview="perception" data-order="1">
                     <button class="overview-button" id="btn-perception">
                         <span class="overview-icon-inner" role="img" aria-label="eye">👁️</span>
                         <h3 class="overview-text-title" data-lang-key="overview_btn1_title">1. Perception</h3>
@@ -401,7 +407,7 @@
                 </div>
                 
                 <!-- Decision Cloud -->
-                <div id="cloud-decision" class="overview-cloud-wrapper" data-overview="decision">
+                <div id="cloud-decision" class="overview-cloud-wrapper" data-overview="decision" data-order="2">
                      <button class="overview-button" id="btn-decision">
                         <span class="overview-icon-inner" role="img" aria-label="brain">🧠</span>
                         <h3 class="overview-text-title" data-lang-key="overview_btn2_title">2. Decision</h3>
@@ -410,7 +416,7 @@
                 </div>
                 
                 <!-- Actuation Cloud -->
-                <div id="cloud-actuation" class="overview-cloud-wrapper" data-overview="actuation">
+                <div id="cloud-actuation" class="overview-cloud-wrapper" data-overview="actuation" data-order="3">
                      <button class="overview-button" id="btn-actuation">
                         <span class="overview-icon-inner" role="img" aria-label="gear">⚙️</span>
                         <h3 class="overview-text-title" data-lang-key="overview_btn3_title">3. Actuation</h3>
@@ -418,6 +424,8 @@
                     </button>
                 </div>
             </div>
+
+            <!-- REMOVED: Container for inactive buttons ABOVE content was here -->
 
             <!-- NEW: Container for all overview content blocks -->
             <div id="overview-content-container" class="mt-8">
@@ -440,15 +448,15 @@
                 </div>
             </div>
 
-            <!-- MOVED: This container is now at the bottom of the Overview section -->
-            <div id="inactive-buttons-container" class="flex flex-col md:flex-row items-center justify-center gap-8 mt-12 mb-4">
-                <!-- Inactive buttons will be moved here by JS -->
+            <!-- NEW: Container for inactive buttons BELOW content -->
+            <div id="inactive-buttons-container-below" class="flex flex-col md:flex-row items-center justify-center gap-8 mt-12 mb-4">
+                <!-- Inactive buttons (like B2, B3) might move here -->
             </div>
         </section>
 
         <!-- LIVE FEED SECTION -->
         <section id="live-feed" class="content-section bg-gray-900 shadow-inner">
-            <!-- REMOVED: Container for inactive buttons was here -->
+            <!-- REMOVED: Old inactive buttons container -->
             
             <h2 class="text-3xl font-bold text-center text-white mb-4" data-lang-key="live_feed_title">Live 360° Visual Feed</h2>
             <p class="text-lg font-mono text-center text-yellow-400 -mt-2 mb-4" data-lang-key="live_feed_machine_id">Machine ID: SENTRY-AFLS-001</p>
@@ -650,11 +658,17 @@
             <h2 class="text-3xl font-bold text-center mb-12" data-lang-key="build_title">Interactive Build Guides</h2>
             <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12" data-lang-key="build_subtitle">Explore the four core phases of building this AI Turret. Click on any cloud below to reveal detailed steps, challenges, and insights for that stage of development.</p>
 
+            <!-- NEW: Container for inactive build buttons ABOVE content -->
+            <div id="inactive-build-buttons-container-above" class="flex flex-wrap items-center justify-center gap-8 mb-8">
+                <!-- Inactive build buttons might move here -->
+            </div>
+
             <!-- Cloud Button Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 justify-items-center">
+            <!-- UPDATED: Added ID and changed grid to flex-wrap for consistency -->
+            <div id="build-button-container" class="flex flex-wrap items-center justify-center gap-8 mb-8">
 
                 <!-- Mechanical Assembly Cloud Button -->
-                <div id="cloud-mech" class="cloud-button-wrapper" data-tab="mechanical">
+                <div id="cloud-mech" class="cloud-button-wrapper" data-tab="mechanical" data-order="1">
                     <button class="cloud-button" id="tab-btn-mechanical">
                         <span class="cloud-icon" role="img" aria-label="gears">🔩</span>
                         <h3 class="cloud-text-title" data-lang-key="build_btn1_title">Mechanical Assembly</h3>
@@ -663,7 +677,7 @@
                 </div>
 
                 <!-- Electronics & Wiring Cloud Button -->
-                <div id="cloud-elec" class="cloud-button-wrapper" data-tab="electronics">
+                <div id="cloud-elec" class="cloud-button-wrapper" data-tab="electronics" data-order="2">
                     <button class="cloud-button" id="tab-btn-electronics">
                         <span class="cloud-icon" role="img" aria-label="circuit">⚡</span>
                         <h3 class="cloud-text-title" data-lang-key="build_btn2_title">Electronics & Wiring</h3>
@@ -672,7 +686,7 @@
                 </div>
 
                 <!-- AI Model & Software Cloud Button -->
-                <div id="cloud-ai" class="cloud-button-wrapper" data-tab="ai">
+                <div id="cloud-ai" class="cloud-button-wrapper" data-tab="ai" data-order="3">
                     <button class="cloud-button" id="tab-btn-ai">
                         <span class="cloud-icon" role="img" aria-label="brain">🧠</span>
                         <h3 class="cloud-text-title" data-lang-key="build_btn3_title">AI Model & Software</h3>
@@ -681,7 +695,7 @@
                 </div>
 
                 <!-- Calibration & Testing Cloud Button -->
-                <div id="cloud-calib" class="cloud-button-wrapper" data-tab="calibration">
+                <div id="cloud-calib" class="cloud-button-wrapper" data-tab="calibration" data-order="4">
                     <button class="cloud-button" id="tab-btn-calibration">
                         <span class="cloud-icon" role="img" aria-label="target">🎯</span>
                         <h3 class="cloud-text-title" data-lang-key="build_btn4_title">Calibration & Testing</h3>
@@ -691,10 +705,10 @@
             </div>
 
             <!-- Collapsible content sections -->
-            <div id="tab-content-mechanical" class="tab-content hidden">
-                <h3 class="text-2xl font-semibold text-blue-700 mb-4" data-lang-key="build_content1_title">Phase 1: Mechanical Assembly</h3>
-                <p class="mb-6 text-gray-700" data-lang-key="build_content1_desc">This phase involves building the physical structure and motion system. Precision and rigidity are the primary goals. The core of this phase is the high-torque herringbone gear drive, which provides backlash-free, precise aiming.</p>
-                <ul class="space-y-4">
+            <!-- NEW: Wrapper for content -->
+            <div id="build-content-container" class="mt-8">
+                <div id="tab-content-mechanical" class="tab-content hidden">
+                    <h3 class="text-2xl font-semibold text-blue-700 mb-4" data-lang-key="build_content1_title">Phase 1: Mechanical Assembly</h3>
                     <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
                         <h4 class="font-semibold text-lg" data-lang-key="build_content1_step1_title">1. Construct the Main Frame</h4>
                         <p class="text-gray-600" data-lang-key="build_content1_step1_desc">Assemble the 2020 aluminum extrusion base and gantry. Use corner brackets and T-nuts to create a rigid skeleton, ensuring all corners are perfectly square.</p>
@@ -765,6 +779,13 @@
                         <p class="text-gray-600" data-lang-key="build_content4_step3_desc">In a safe area, tune the `kP`, `kI`, and `kD` gains for the pan and tilt PID controllers. This ensures the tracking is fast, smooth, and does not overshoot the target. Start with P, then D, then I.</p>
                     </li>
                 </ul>
+            </div>
+            <!-- END: Wrapper for content -->
+            </div>
+
+            <!-- NEW: Container for inactive build buttons BELOW content -->
+            <div id="inactive-build-buttons-container-below" class="flex flex-wrap items-center justify-center gap-8 mt-12 mb-4">
+                <!-- Inactive build buttons might move here -->
             </div>
         </section>
 
@@ -1162,9 +1183,10 @@
             };
             // Get all cloud wrappers
             const overviewCloudWrappers = document.querySelectorAll('.overview-cloud-wrapper');
-            // Get the two containers for button logic
+            // Get the THREE containers for button logic
             const originalButtonContainer = document.getElementById('overview-button-container');
-            const inactiveButtonContainer = document.getElementById('inactive-buttons-container');
+            const inactiveButtonContainerAbove = document.getElementById('inactive-buttons-container-above');
+            const inactiveButtonContainerBelow = document.getElementById('inactive-buttons-container-below');
 
 
             function handleOverviewClick(event) {
@@ -1174,7 +1196,8 @@
                 const clickedButton = overviewButtons[section];
                 const clickedContent = overviewContents[section];
 
-                if (!clickedButton || !clickedContent || !originalButtonContainer || !inactiveButtonContainer) return;
+                // Updated check to include new containers
+                if (!clickedButton || !clickedContent || !originalButtonContainer || !inactiveButtonContainerAbove || !inactiveButtonContainerBelow) return;
 
                 const isAlreadyActive = clickedButton.classList.contains('active');
 
@@ -1182,6 +1205,10 @@
                 // Deactivate all buttons and content first
                 Object.values(overviewContents).forEach(el => el.classList.add('hidden'));
                 Object.values(overviewButtons).forEach(el => el.classList.remove('active'));
+                
+                // Clear inactive containers
+                inactiveButtonContainerAbove.innerHTML = '';
+                inactiveButtonContainerBelow.innerHTML = '';
                 
                 // Move all wrappers back to the original container and reset styles
                 overviewCloudWrappers.forEach(wr => {
@@ -1194,10 +1221,9 @@
                 // Sort them to be in the correct order
                 const buttons = Array.from(originalButtonContainer.children).filter(el => el.classList.contains('overview-cloud-wrapper'));
                 buttons.sort((a, b) => {
-                    const order = { 'perception': 1, 'decision': 2, 'actuation': 3 };
-                    // Check if dataset.overview exists before accessing
-                    const orderA = a.dataset && a.dataset.overview ? order[a.dataset.overview] : 99;
-                    const orderB = b.dataset && b.dataset.overview ? order[b.dataset.overview] : 99;
+                    // Use data-order for sorting
+                    const orderA = a.dataset && a.dataset.order ? parseInt(a.dataset.order) : 99;
+                    const orderB = b.dataset && b.dataset.order ? parseInt(b.dataset.order) : 99;
                     return orderA - orderB;
                 });
                 buttons.forEach(btn => originalButtonContainer.appendChild(btn));
@@ -1213,12 +1239,41 @@
                     wrapper.style.animationPlayState = 'paused';
                     wrapper.style.transform = 'translateY(0px) scale(1.08)';
 
-                    // Move the *other* buttons
-                    buttons.forEach(btnWrapper => {
-                        if (btnWrapper !== wrapper) {
-                            inactiveButtonContainer.appendChild(btnWrapper);
-                        }
-                    });
+                    // --- NEW LOGIC ---
+                    // Move buttons based on which one was clicked
+                    switch(section) {
+                        case 'perception': // Clicked B1
+                            // B1 (wrapper) stays in original
+                            // B2, B3 go below
+                            buttons.forEach(btnWrapper => {
+                                if (btnWrapper.dataset.order === '2' || btnWrapper.dataset.order === '3') {
+                                    inactiveButtonContainerBelow.appendChild(btnWrapper);
+                                }
+                            });
+                            break;
+                        case 'decision': // Clicked B2
+                            // B1 goes above
+                            // B2 (wrapper) stays in original
+                            // B3 goes below
+                             buttons.forEach(btnWrapper => {
+                                if (btnWrapper.dataset.order === '1') {
+                                    inactiveButtonContainerAbove.appendChild(btnWrapper);
+                                } else if (btnWrapper.dataset.order === '3') {
+                                    inactiveButtonContainerBelow.appendChild(btnWrapper);
+                                }
+                            });
+                            break;
+                        case 'actuation': // Clicked B3
+                            // B1, B2 go above
+                            // B3 (wrapper) stays in original
+                            buttons.forEach(btnWrapper => {
+                                if (btnWrapper.dataset.order === '1' || btnWrapper.dataset.order === '2') {
+                                    inactiveButtonContainerAbove.appendChild(btnWrapper);
+                                }
+                            });
+                            break;
+                    }
+                    // --- END NEW LOGIC ---
                 }
                 // If it *was* already active (isAlreadyActive = true),
                 // the RESET PHASE already did everything we need (moved all buttons back, hid content).
@@ -1244,37 +1299,84 @@
                 calibration: document.getElementById('tab-content-calibration')
             };
 
-            const buildCloudWrappers = document.querySelectorAll('.cloud-button-wrapper[data-tab]');
+            // --- NEW: Get ALL Build wrappers and containers ---
+            const allBuildCloudWrappers = document.querySelectorAll('.cloud-button-wrapper[data-tab]');
+            const originalBuildButtonContainer = document.getElementById('build-button-container');
+            const inactiveBuildButtonContainerAbove = document.getElementById('inactive-build-buttons-container-above');
+            const inactiveBuildButtonContainerBelow = document.getElementById('inactive-build-buttons-container-below');
+            // --- END NEW ---
 
             function handleBuildCloudClick(event) {
                 const wrapper = event.currentTarget; // The div with class .cloud-button-wrapper
                 const tabName = wrapper.dataset.tab; // Get the tab name from the data-tab attribute
+                const clickedOrder = parseInt(wrapper.dataset.order);
 
                 const clickedButton = tabButtons[tabName];
                 const clickedContent = tabContents[tabName];
 
-                if (!clickedButton || !clickedContent) return;
+                if (!clickedButton || !clickedContent || !originalBuildButtonContainer || !inactiveBuildButtonContainerAbove || !inactiveBuildButtonContainerBelow) return;
 
                 const isAlreadyActive = clickedButton.classList.contains('active');
 
+                // --- RESET PHASE ---
                 // Hide all content and deactivate all buttons/wrappers
                 Object.values(tabContents).forEach(el => el.classList.add('hidden'));
                 Object.values(tabButtons).forEach(el => el.classList.remove('active'));
-                buildCloudWrappers.forEach(el => {
-                    el.querySelector('.cloud-button')?.classList.remove('active'); // Deactivate inner button style
-                    el.style.animationPlayState = 'running'; // Resume floating for all
+                
+                // Clear inactive containers
+                inactiveBuildButtonContainerAbove.innerHTML = '';
+                inactiveBuildButtonContainerBelow.innerHTML = '';
+
+                // Move all wrappers back to the original container and reset styles
+                allBuildCloudWrappers.forEach(wr => {
+                    wr.classList.remove('active');
+                    wr.querySelector('.cloud-button')?.classList.remove('active'); // Deactivate inner button style
+                    wr.style.animationPlayState = 'running'; // Resume floating
+                    wr.style.transform = ''; // Clear transform
+                    originalBuildButtonContainer.appendChild(wr); // Move it back
                 });
 
+                // Sort them to be in the correct order
+                const buttons = Array.from(originalBuildButtonContainer.children).filter(el => el.classList.contains('cloud-button-wrapper'));
+                buttons.sort((a, b) => {
+                    const orderA = a.dataset && a.dataset.order ? parseInt(a.dataset.order) : 99;
+                    const orderB = b.dataset && b.dataset.order ? parseInt(b.dataset.order) : 99;
+                    return orderA - orderB;
+                });
+                buttons.forEach(btn => originalBuildButtonContainer.appendChild(btn));
+                // --- END RESET PHASE ---
 
+
+                // --- ACTIVATION PHASE ---
                 if (!isAlreadyActive) {
                     clickedButton.classList.add('active'); // Activate inner button style
                     clickedContent.classList.remove('hidden');
+                    wrapper.classList.add('active'); // Style the wrapper
                     wrapper.style.animationPlayState = 'paused'; // Pause floating for active wrapper
-                    wrapper.style.transform = 'translateY(0px) scale(1.08)'; // Keep it slightly scaled up and no float
+                    wrapper.style.transform = 'translateY(0px) scale(1.08)'; // Keep it slightly scaled up
+
+                    // --- NEW LOGIC for 4 buttons ---
+                    // Move buttons based on which one was clicked
+                    buttons.forEach(btnWrapper => {
+                        const btnOrder = parseInt(btnWrapper.dataset.order);
+                        
+                        // Skip the one we just clicked
+                        if (btnOrder === clickedOrder) return; 
+
+                        if (btnOrder < clickedOrder) {
+                            // If button order is less than clicked, move it above
+                            inactiveBuildButtonContainerAbove.appendChild(btnWrapper);
+                        } else {
+                            // If button order is greater than clicked, move it below
+                            inactiveBuildButtonContainerBelow.appendChild(btnWrapper);
+                        }
+                    });
+                    // --- END NEW LOGIC ---
                 }
+                // If it *was* already active, the RESET PHASE already handled it.
             }
 
-            buildCloudWrappers.forEach(wrapper => {
+            allBuildCloudWrappers.forEach(wrapper => {
                 wrapper.addEventListener('click', handleBuildCloudClick);
             });
 
