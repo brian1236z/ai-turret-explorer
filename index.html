@@ -240,6 +240,17 @@
             @apply text-5xl;
             color: #2563eb; /* Blue icon color */
         }
+
+        /* Monitoring styles */
+        .monitor-btn {
+            @apply px-4 py-2 rounded-lg text-white font-semibold transition-colors disabled:opacity-50;
+        }
+        .monitor-btn-add {
+            @apply bg-blue-600 hover:bg-blue-700;
+        }
+        .monitor-btn-remove {
+            @apply bg-red-600 hover:bg-red-700;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -258,6 +269,7 @@
                         <a href="#turret-3d" class="nav-link" data-lang-key="nav_3d">3D Turret View</a>
                         <a href="#overview" class="nav-link" data-lang-key="nav_overview">System Overview</a>
                         <a href="#live-feed" class="nav-link" data-lang-key="nav_live_feed">Live Feed</a>
+                        <a href="#monitoring" class="nav-link" data-lang-key="nav_monitoring">Monitoring</a>
                         <a href="#components" class="nav-link" data-lang-key="nav_components">Components</a>
                         <a href="#build" class="nav-link" data-lang-key="nav_build">Build Guides</a>
                         <a href="#safety" class="nav-link" data-lang-key="nav_safety">Safety</a>
@@ -291,6 +303,7 @@
                 <a href="#turret-3d" class="mobile-nav-link" data-lang-key="nav_3d">3D Turret View</a>
                 <a href="#overview" class="mobile-nav-link" data-lang-key="nav_overview">System Overview</a>
                 <a href="#live-feed" class="mobile-nav-link" data-lang-key="nav_live_feed">Live Feed</a>
+                <a href="#monitoring" class="mobile-nav-link" data-lang-key="nav_monitoring">Monitoring</a>
                 <a href="#components" class="mobile-nav-link" data-lang-key="nav_components">Components</a>
                 <a href="#build" class="mobile-nav-link" data-lang-key="nav_build">Build Guides</a>
                 <a href="#safety" class="mobile-nav-link" data-lang-key="nav_safety">Safety</a>
@@ -303,7 +316,7 @@
         <section id="home" class="content-section bg-white shadow-inner">
             <div class="text-center">
                 <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl" data-lang-key="home_title">AI-Powered Autonomous Turret</h1>
-                <p class="mt-6 text-xl leading-8 text-gray-700 max-w-3xl mx-auto" data-lang-key="home_subtitle">An interactive guide to the construction and programming of an intelligent, non-lethal wildlife deterrent. This system is designed to identify and discourage specific animals from protected areas while actively detecting and avoiding human presence.</p>
+                <p class="mt-6 text-xl leading-8 text-gray-700 max-w-3xl mx-auto" data-lang-key="home_subtitle">An automated system to protect farm lands from animal pests while also protecting wildlife from hazardous electric fences. This non-lethal deterrent removes the need for manual patrols, offering an intelligent, humane solution for crop protection while ensuring human safety.</p>
                 <div class="mt-10 flex items-center justify-center gap-x-6">
                     <a href="#overview" class="rounded-md bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-3 text-lg font-semibold text-white shadow-md hover:shadow-lg hover:scale-105 transition-all transform" data-lang-key="home_explore_btn">Explore the System</a>
                 </div>
@@ -426,9 +439,10 @@
             </div>
         </section>
 
-        <!-- NEW LIVE FEED SECTION -->
+        <!-- LIVE FEED SECTION -->
         <section id="live-feed" class="content-section bg-gray-900 shadow-inner">
             <h2 class="text-3xl font-bold text-center text-white mb-4" data-lang-key="live_feed_title">Live 360° Visual Feed</h2>
+            <p class="text-lg font-mono text-center text-yellow-400 -mt-2 mb-4" data-lang-key="live_feed_machine_id">Machine ID: SENTRY-AFLS-001</p>
             <p class="text-lg text-gray-300 text-center max-w-3xl mx-auto mb-12" data-lang-key="live_feed_subtitle">This interface shows the real-time stitched video from the 3-camera array. The 360° scale below maps each camera's 120° sector, and each feed includes GPS data.</p>
             
             <!-- "Attached" Camera Feeds -->
@@ -522,8 +536,55 @@
             </div>
         </section>
 
+        <!-- NEW MONITORING SECTION -->
+        <section id="monitoring" class="content-section bg-white shadow-inner">
+            <h2 class="text-3xl font-bold text-center mb-4" data-lang-key="monitoring_title">System Monitoring</h2>
+            <p class="text-lg font-mono text-center text-blue-600 -mt-2 mb-4" data-lang-key="monitoring_machine_id">Machine ID: SENTRY-AFLS-001</p>
+            <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12" data-lang-key="monitoring_subtitle">Monitor real-time system status, ammunition, and gas levels. Manage the hopper remotely.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- Shot Count Card -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-md text-center">
+                    <h3 class="text-xl font-semibold mb-4" data-lang-key="monitoring_shot_count">Shot Count</h3>
+                    <span id="shot-count" class="text-6xl font-bold text-blue-600">0</span>
+                    <p class="text-gray-600 mt-2">Total projectiles fired</p>
+                    <button id="shot-reset-btn" class="monitor-btn bg-blue-500 hover:bg-blue-700 mt-4" data-lang-key="monitoring_reset_btn">Reset Count</button>
+                    <!-- New Fire Button -->
+                    <button id="fire-shot-btn" class="monitor-btn bg-yellow-500 hover:bg-yellow-600 mt-4 ml-2" data-lang-key="monitoring_fire_shot_btn">Fire 1 Shot</button>
+                </div>
 
-        <section id="components" class="content-section">
+                <!-- Gas Level Card -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-md text-center">
+                    <h3 class="text-xl font-semibold mb-4" data-lang-key="monitoring_gas_level">Gas Level (HPA)</h3>
+                    <div class="w-full bg-gray-200 rounded-full h-8 overflow-hidden">
+                        <div id="gas-level-bar" class="bg-green-500 h-8 rounded-full flex items-center justify-center text-white font-bold" style="width: 80%; transition: width 0.5s ease;">
+                            80%
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mt-2">Remaining pressure</p>
+                </div>
+
+                <!-- Hopper Status Card -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-md text-center">
+                    <h3 class="text-xl font-semibold mb-4" data-lang-key="monitoring_hopper_status">Hopper Status</h3>
+                    <div class="text-4xl font-bold text-blue-600 mb-2">
+                        <span id="paintball-count">100</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden mb-4">
+                        <div id="paintball-level-bar" class="bg-blue-500 h-4 rounded-full" style="width: 80%; transition: width 0.5s ease;"></div>
+                    </div>
+                    <!-- Updated Button Layout -->
+                    <div class="flex justify-center items-center space-x-2">
+                        <button id="paintball-remove-custom-btn" class="monitor-btn monitor-btn-remove w-12" data-lang-key="monitoring_remove_custom_btn">-</button>
+                        <input type="number" id="paintball-custom-amount" value="10" min="1" class="w-24 text-center border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500" data-lang-key-placeholder="monitoring_custom_amount_placeholder">
+                        <button id="paintball-add-custom-btn" class="monitor-btn monitor-btn-add w-12" data-lang-key="monitoring_add_custom_btn">+</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <section id="components" class="content-section bg-gray-100 shadow-inner">
             <h2 class="text-3xl font-bold text-center mb-4" data-lang-key="components_title">Interactive Bill of Materials</h2>
             <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12" data-lang-key="components_subtitle">This is the complete list of components required for the project. Use the filters to explore parts by category or use the search bar to find a specific item. A breakdown of component categories is shown in the chart.</p>
 
@@ -755,15 +816,16 @@
                     'lang_btn_title': 'Language',
                     'nav_title': 'AI Farm Land Sentry',
                     'nav_home': 'Home',
-                    'nav_3d': '3D Turret View',
+                    'nav_3d': '3D AI Sentry View',
                     'nav_overview': 'System Overview',
                     'nav_live_feed': 'Live Feed',
+                    'nav_monitoring': 'Monitoring',
                     'nav_components': 'Components',
                     'nav_build': 'Build Guides',
                     'nav_safety': 'Safety',
                     'nav_lang_title': 'Language', // Added for mobile
                     'home_title': 'AI Farm Land Sentry',
-                    'home_subtitle': 'An interactive guide to the construction and programming of an intelligent, non-lethal wildlife deterrent. This system is designed to identify and discourage specific animals from protected areas while actively detecting and avoiding human presence.',
+                    'home_subtitle': 'An automated system to protect farm lands from animal pests while also protecting wildlife from hazardous electric fences. This non-lethal deterrent removes the need for manual patrols, offering an intelligent, humane solution for crop protection while ensuring human safety.',
                     'home_explore_btn': 'Explore the System',
                     'home_target1_title': 'Target: Macaque',
                     'home_target1_desc': "Formosan Macaque (*Macaca cyclopis*)",
@@ -793,7 +855,21 @@
                     'overview_content3_title': 'Actuation: The Mechanical Response',
                     'overview_content3_desc': "Based on the AI's decision, the Jetson commands the physical hardware. It sends signals to two NEMA 23 stepper motors via DM542S drivers, which move the high-torque herringbone gear pan-tilt mechanism to aim the paintball gun. To fire, it sends a signal to a relay, which activates a 24V solenoid to pull the trigger. This entire loop repeats multiple times per second.",
                     'live_feed_title': 'Live 360° Visual Feed',
-                    'live_feed_subtitle': 'This interface shows the real-time stitched video from the 3-camera array. Each feed includes compass and GPS data, allowing the AI to map threats in physical space.',
+                    'live_feed_machine_id': 'Machine ID: SENTRY-AFLS-001',
+                    'live_feed_subtitle': 'This interface shows the real-time stitched video from the 3-camera array. The 360° scale below maps each camera\'s 120° sector, and each feed includes GPS data.',
+                    'monitoring_title': 'System Monitoring',
+                    'monitoring_machine_id': 'Machine ID: SENTRY-AFLS-001',
+                    'monitoring_subtitle': 'Monitor real-time system status, ammunition, and gas levels. Manage the hopper remotely.',
+                    'monitoring_shot_count': 'Shot Count',
+                    'monitoring_gas_level': 'Gas Level (HPA)',
+                    'monitoring_hopper_status': 'Hopper Status',
+                    'monitoring_add_btn': '+100 Paintballs', // This is no longer used, but safe to keep
+                    'monitoring_remove_btn': '-100 Paintballs', // This is no longer used, but safe to keep
+                    'monitoring_reset_btn': 'Reset Count',
+                    'monitoring_fire_shot_btn': 'Fire 1 Shot',
+                    'monitoring_add_custom_btn': '+',
+                    'monitoring_remove_custom_btn': '-',
+                    'monitoring_custom_amount_placeholder': 'Qty',
                     'components_title': 'Interactive Bill of Materials',
                     'components_subtitle': 'This is the complete list of components required for the project. Use the filters to explore parts by category or use the search bar to find a specific item. A breakdown of component categories is shown in the chart.',
                     'components_chart_title': 'Component Categories',
@@ -1058,6 +1134,9 @@
             }
 
             initCategories(); 
+            
+            // --- Render components once on initial load ---
+            renderComponents();
             // --- END COMPONENT LIST SCRIPT ---
 
 
@@ -1219,6 +1298,89 @@
                     }
                 });
             }
+
+            // --- MONITORING SCRIPT ---
+            let shotCount = 0;
+            let gasLevel = 80; // percent
+            let paintballCount = 100;
+            const maxPaintballs = 1000;
+
+            const shotCountEl = document.getElementById('shot-count');
+            const gasLevelBar = document.getElementById('gas-level-bar');
+            const paintballCountEl = document.getElementById('paintball-count');
+            const paintballLevelBar = document.getElementById('paintball-level-bar');
+            
+            // Updated element IDs
+            const paintballAddCustomBtn = document.getElementById('paintball-add-custom-btn');
+            const paintballRemoveCustomBtn = document.getElementById('paintball-remove-custom-btn');
+            const paintballCustomAmountEl = document.getElementById('paintball-custom-amount');
+            const fireShotBtn = document.getElementById('fire-shot-btn');
+            
+            const shotResetBtn = document.getElementById('shot-reset-btn'); // Added reset button
+
+            function updateMonitoringUI() {
+                if (shotCountEl) shotCountEl.textContent = shotCount;
+                
+                if (gasLevelBar) {
+                    gasLevelBar.style.width = `${gasLevel}%`;
+                    gasLevelBar.textContent = `${gasLevel}%`;
+                }
+
+                if (paintballCountEl) paintballCountEl.textContent = paintballCount;
+                
+                if (paintballLevelBar) {
+                    const paintballPercent = (paintballCount / maxPaintballs) * 100;
+                    paintballLevelBar.style.width = `${paintballPercent}%`;
+                }
+
+                // Update button disabled states
+                if (fireShotBtn) fireShotBtn.disabled = paintballCount <= 0;
+                if (paintballAddCustomBtn) paintballAddCustomBtn.disabled = paintballCount >= maxPaintballs;
+                if (paintballRemoveCustomBtn) paintballRemoveCustomBtn.disabled = paintballCount <= 0;
+            }
+
+            if (paintballAddCustomBtn) {
+                paintballAddCustomBtn.addEventListener('click', () => {
+                    const amount = parseInt(paintballCustomAmountEl.value) || 0;
+                    if (amount > 0) {
+                        paintballCount = Math.min(maxPaintballs, paintballCount + amount);
+                        updateMonitoringUI();
+                    }
+                });
+            }
+
+            if (paintballRemoveCustomBtn) {
+                paintballRemoveCustomBtn.addEventListener('click', () => {
+                    const amount = parseInt(paintballCustomAmountEl.value) || 0;
+                    if (amount > 0) {
+                        paintballCount = Math.max(0, paintballCount - amount);
+                        updateMonitoringUI();
+                    }
+                });
+            }
+            
+            if (fireShotBtn) {
+                fireShotBtn.addEventListener('click', () => {
+                    if (paintballCount > 0) {
+                        shotCount++;
+                        paintballCount--;
+                        updateMonitoringUI();
+                    }
+                });
+            }
+
+            if (shotResetBtn) {
+                shotResetBtn.addEventListener('click', () => {
+                    shotCount = 0;
+                    updateMonitoringUI();
+                });
+            }
+
+            // Initial UI update on load
+            updateMonitoringUI();
+            // --- END MONITORING SCRIPT ---
+
+
              // --- END UI INTERACTION SCRIPTS ---
 
              // Set initial language AFTER all functions and variables are defined
