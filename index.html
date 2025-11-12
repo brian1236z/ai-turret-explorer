@@ -399,6 +399,13 @@
                         <p class="overview-text-description" data-lang-key="overview_btn1_desc">Sensing the environment.</p>
                     </button>
                 </div>
+                
+            <!-- Content for Perception -->
+            <div id="content-perception" class="overview-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content1_title">Perception: The 360° Tri-Camera System</h3>
+                <p class="text-gray-700" data-lang-key="overview_content1_desc">The system perceives its environment using a tri-camera array (3x Logitech C615 webcams), providing a stitched 360-degree panoramic view. The real-time feeds are processed by the AI, with each camera covering a 120-degree sector.</p>
+
+            </div>
 
                 <!-- Decision Cloud -->
                 <div id="cloud-decision" class="overview-cloud-wrapper" data-overview="decision">
@@ -409,6 +416,12 @@
                     </button>
                 </div>
 
+                <!-- Content for Decision -->
+            <div id="content-decision" class="overview-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content2_title">Decision: The AI Brain (Jetson & YOLO)</h3>
+                <p class="text-gray-700" data-lang-key="overview_content2_desc">The heart of the decision-making process is the NVIDIA Jetson Orin Nano. It runs a custom-trained YOLO model, processing all camera feeds in real-time. This model detects and classifies objects (macaque, muntjac, human). The control software applies a simple logic: if a human is seen, enter "Safe Mode." If a target animal is seen (and no human), calculate its position and initiate tracking.</p>
+            </div>
+
                 <!-- Actuation Cloud -->
                 <div id="cloud-actuation" class="overview-cloud-wrapper" data-overview="actuation">
                      <button class="overview-button" id="btn-actuation">
@@ -417,26 +430,13 @@
                         <p class="overview-text-description" data-lang-key="overview_btn3_desc">Taking physical action.</p>
                     </button>
                 </div>
-            </div>
-
-            <!-- Content for Perception -->
-            <div id="content-perception" class="overview-content hidden">
-                <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content1_title">Perception: The 360° Tri-Camera System</h3>
-                <p class="text-gray-700" data-lang-key="overview_content1_desc">The system perceives its environment using a tri-camera array (3x Logitech C615 webcams), providing a stitched 360-degree panoramic view. The real-time feeds are processed by the AI, with each camera covering a 120-degree sector.</p>
-
-            </div>
-
-            <!-- Content for Decision -->
-            <div id="content-decision" class="overview-content hidden">
-                <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content2_title">Decision: The AI Brain (Jetson & YOLO)</h3>
-                <p class="text-gray-700" data-lang-key="overview_content2_desc">The heart of the decision-making process is the NVIDIA Jetson Orin Nano. It runs a custom-trained YOLO model, processing all camera feeds in real-time. This model detects and classifies objects (macaque, muntjac, human). The control software applies a simple logic: if a human is seen, enter "Safe Mode." If a target animal is seen (and no human), calculate its position and initiate tracking.</p>
-            </div>
 
             <!-- Content for Actuation -->
             <div id="content-actuation" class="overview-content hidden">
                 <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content3_title">Actuation: The Mechanical Response</h3>
                 <p class="text-gray-700" data-lang-key="overview_content3_desc">Based on the AI's decision, the Jetson commands the physical hardware. It sends signals to two NEMA 23 stepper motors via DM542S drivers, which move the high-torque herringbone gear pan-tilt mechanism to aim the paintball gun. To fire, it sends a signal to a relay, which activates a 24V solenoid to pull the trigger. This entire loop repeats multiple times per second.</p>
             </div>
+        </div>
         </section>
 
         <!-- LIVE FEED SECTION -->
