@@ -23,10 +23,11 @@
         }
         /* Updated mobile nav link style */
         .mobile-nav-link {
-             @apply block w-full text-center px-4 py-3 mb-2 rounded-md text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 shadow-md hover:shadow-lg hover:scale-105 transition-all transform;
+             /* @apply block w-full text-center px-4 py-3 mb-2 rounded-md text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 shadow-md hover:shadow-lg hover:scale-105 transition-all transform; */
+             @apply block w-full text-left px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors;
         }
         .mobile-nav-link:last-child {
-            @apply mb-0; /* Remove margin from the last button */
+            /* @apply mb-0; */ /* No longer needed */
         }
 
         .lang-btn {
@@ -280,7 +281,7 @@
                 </div>
 
                 <!-- Mobile Menu Button -->
-                <div class="sm:hidden flex items-center">
+                <div class="sm:hidden flex items-center relative"> <!-- ADDED relative -->
                     <button id="mobile-menu-btn" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                         <span class="sr-only">Open main menu</span>
                         <!-- Hamburger Icon -->
@@ -292,24 +293,34 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
+
+                    <!-- Mobile Menu (hidden by default) -->
+                    <!-- MOVED and STYLED as dropdown -->
+                    <div id="mobile-menu" class="hidden absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 origin-top-right">
+                        <div class="px-2 py-2 space-y-1"> <!-- Adjusted padding and spacing -->
+                            <a href="#home" class="mobile-nav-link rounded-md" data-lang-key="nav_home">Home</a>
+                            <a href="#turret-3d" class="mobile-nav-link rounded-md" data-lang-key="nav_3d">3D AI Sentry View</a>
+                            <a href="#overview" class="mobile-nav-link rounded-md" data-lang-key="nav_overview">System Overview</a>
+                            <a href="#live-feed" class="mobile-nav-link rounded-md" data-lang-key="nav_live_feed">Live Feed</a>
+                            <a href="#monitoring" class="mobile-nav-link rounded-md" data-lang-key="nav_monitoring">Monitoring</a>
+                            <a href="#components" class="mobile-nav-link rounded-md" data-lang-key="nav_components">Components</a>
+                            <a href="#build" class="mobile-nav-link rounded-md" data-lang-key="nav_build">Build Guides</a>
+                            <a href="#safety" class="mobile-nav-link rounded-md" data-lang-key="nav_safety">Safety</a>
+                        </div>
+                        <!-- Language Switcher (Mobile) - REMOVED -->
+                    </div>
+                    <!-- END MOVED -->
                 </div>
             </div>
         </div>
 
         <!-- Mobile Menu (hidden by default) -->
+        <!-- MOVED FROM HERE -->
+        <!-- 
         <div id="mobile-menu" class="hidden sm:hidden bg-white shadow-lg">
-            <div class="px-4 pt-4 pb-3 space-y-1">
-                <a href="#home" class="mobile-nav-link" data-lang-key="nav_home">Home</a>
-                <a href="#turret-3d" class="mobile-nav-link" data-lang-key="nav_3d">3D AI Sentry View</a>
-                <a href="#overview" class="mobile-nav-link" data-lang-key="nav_overview">System Overview</a>
-                <a href="#live-feed" class="mobile-nav-link" data-lang-key="nav_live_feed">Live Feed</a>
-                <a href="#monitoring" class="mobile-nav-link" data-lang-key="nav_monitoring">Monitoring</a>
-                <a href="#components" class="mobile-nav-link" data-lang-key="nav_components">Components</a>
-                <a href="#build" class="mobile-nav-link" data-lang-key="nav_build">Build Guides</a>
-                <a href="#safety" class="mobile-nav-link" data-lang-key="nav_safety">Safety</a>
-            </div>
-            <!-- Language Switcher (Mobile) - REMOVED -->
+            ...
         </div>
+         -->
     </nav>
 
     <main>
@@ -1044,6 +1055,32 @@
                     }
                 });
             }
+
+            // --- NEW: Close dropdown when clicking outside ---
+            document.addEventListener('click', (event) => {
+                if (!mobileMenu || !mobileMenuBtn) return;
+
+                const isClickInsideMenu = mobileMenu.contains(event.target);
+                const isClickOnButton = mobileMenuBtn.contains(event.target);
+                const isMenuHidden = mobileMenu.classList.contains('hidden');
+
+                if (!isClickInsideMenu && !isClickOnButton && !isMenuHidden) {
+                    // Click was outside, and menu is open. Close it.
+                    mobileMenu.classList.add('hidden');
+                    // Reset icons
+                    const hamburgerIcon = mobileMenuBtn.querySelector('svg:nth-of-type(1)');
+                    const closeIcon = mobileMenuBtn.querySelector('svg:nth-of-type(2)');
+                    if (hamburgerIcon) {
+                        hamburgerIcon.classList.remove('hidden');
+                        hamburgerIcon.classList.add('block');
+                    }
+                    if (closeIcon) {
+                        closeIcon.classList.add('hidden');
+                        closeIcon.classList.remove('block');
+                    }
+                }
+            });
+            // --- END NEW SCRIPT ---
 
             // Close mobile menu when a link is clicked
             document.querySelectorAll('#mobile-menu a').forEach(link => {
