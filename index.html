@@ -389,7 +389,7 @@
             <h2 class="text-3xl font-bold text-center mb-4" data-lang-key="overview_title">System Architecture</h2>
             <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12" data-lang-key="overview_subtitle">The turret operates on a classic "Perception-Decision-Actuation" loop. This model explains how the components work together in real-time. Click a cloud to learn more about its function and key components.</p>
 
-            <div class="flex flex-col md:flex-row items-center justify-center gap-8 mb-8">
+            <div id="overview-button-container" class="flex flex-col md:flex-row items-center justify-center gap-8 mb-8">
 
                 <!-- Perception Cloud -->
                 <div id="cloud-perception" class="overview-cloud-wrapper" data-overview="perception">
@@ -400,13 +400,6 @@
                     </button>
                 </div>
                 
-            <!-- Content for Perception -->
-            <div id="content-perception" class="overview-content hidden">
-                <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content1_title">Perception: The 360° Tri-Camera System</h3>
-                <p class="text-gray-700" data-lang-key="overview_content1_desc">The system perceives its environment using a tri-camera array (3x Logitech C615 webcams), providing a stitched 360-degree panoramic view. The real-time feeds are processed by the AI, with each camera covering a 120-degree sector.</p>
-
-            </div>
-
                 <!-- Decision Cloud -->
                 <div id="cloud-decision" class="overview-cloud-wrapper" data-overview="decision">
                      <button class="overview-button" id="btn-decision">
@@ -415,13 +408,7 @@
                         <p class="overview-text-description" data-lang-key="overview_btn2_desc">Analyzing and planning.</p>
                     </button>
                 </div>
-
-                <!-- Content for Decision -->
-            <div id="content-decision" class="overview-content hidden">
-                <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content2_title">Decision: The AI Brain (Jetson & YOLO)</h3>
-                <p class="text-gray-700" data-lang-key="overview_content2_desc">The heart of the decision-making process is the NVIDIA Jetson Orin Nano. It runs a custom-trained YOLO model, processing all camera feeds in real-time. This model detects and classifies objects (macaque, muntjac, human). The control software applies a simple logic: if a human is seen, enter "Safe Mode." If a target animal is seen (and no human), calculate its position and initiate tracking.</p>
-            </div>
-
+                
                 <!-- Actuation Cloud -->
                 <div id="cloud-actuation" class="overview-cloud-wrapper" data-overview="actuation">
                      <button class="overview-button" id="btn-actuation">
@@ -430,17 +417,34 @@
                         <p class="overview-text-description" data-lang-key="overview_btn3_desc">Taking physical action.</p>
                     </button>
                 </div>
-
-            <!-- Content for Actuation -->
-            <div id="content-actuation" class="overview-content hidden">
-                <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content3_title">Actuation: The Mechanical Response</h3>
-                <p class="text-gray-700" data-lang-key="overview_content3_desc">Based on the AI's decision, the Jetson commands the physical hardware. It sends signals to two NEMA 23 stepper motors via DM542S drivers, which move the high-torque herringbone gear pan-tilt mechanism to aim the paintball gun. To fire, it sends a signal to a relay, which activates a 24V solenoid to pull the trigger. This entire loop repeats multiple times per second.</p>
             </div>
-        </div>
+
+            <!-- START: Added Overview Content Blocks -->
+            <div id="overview-content-container" class="mt-8">
+                <!-- Perception Content -->
+                <div id="content-perception" class="overview-content hidden">
+                    <h3 class="text-2xl font-semibold text-blue-700 mb-4" data-lang-key="overview_content1_title">Perception: The 360° Tri-Camera System</h3>
+                    <p class="text-gray-700" data-lang-key="overview_content1_desc">The system perceives its environment using a tri-camera array (3x Logitech C615 webcams), providing a stitched 360-degree panoramic view. The real-time feeds are processed by the AI, with each camera covering a 120-degree sector.</p>
+                </div>
+                <!-- Decision Content -->
+                <div id="content-decision" class="overview-content hidden">
+                    <h3 class="text-2xl font-semibold text-blue-700 mb-4" data-lang-key="overview_content2_title">Decision: The AI Brain (Jetson & YOLO)</h3>
+                    <p class="text-gray-700" data-lang-key="overview_content2_desc">The heart of the decision-making process is the NVIDIA Jetson Orin Nano. It runs a custom-trained YOLO model, processing all camera feeds in real-time. This model detects and classifies objects (macaque, muntjac, human). The control software applies a simple logic: if a human is seen, enter "Safe Mode." If a target animal is seen (and no human), calculate its position and initiate tracking.</p>
+                </div>
+                <!-- Actuation Content -->
+                <div id="content-actuation" class="overview-content hidden">
+                    <h3 class="text-2xl font-semibold text-blue-700 mb-4" data-lang-key="overview_content3_title">Actuation: The Mechanical Response</h3>
+                    <p class="text-gray-700" data-lang-key="overview_content3_desc">Based on the AI's decision, the Jetson commands the physical hardware. It sends signals to two NEMA 23 stepper motors via DM542S drivers, which move the high-torque herringbone gear pan-tilt mechanism to aim the paintball gun. To fire, it sends a signal to a relay, which activates a 24V solenoid to pull the trigger. This entire loop repeats multiple times per second.</p>
+                </div>
+            </div>
+            <!-- END: Added Overview Content Blocks -->
+
+            <!-- REMOVED: Cleaned up commented-out container -->
         </section>
 
         <!-- LIVE FEED SECTION -->
         <section id="live-feed" class="content-section bg-gray-900 shadow-inner">
+            
             <h2 class="text-3xl font-bold text-center text-white mb-4" data-lang-key="live_feed_title">Live 360° Visual Feed</h2>
             <p class="text-lg font-mono text-center text-yellow-400 -mt-2 mb-4" data-lang-key="live_feed_machine_id">Machine ID: SENTRY-AFLS-001</p>
             <p class="text-lg text-gray-300 text-center max-w-3xl mx-auto mb-12" data-lang-key="live_feed_subtitle">This interface shows the real-time stitched video from the 3-camera array. The 360° scale below maps each camera's 120° sector, and each feed includes GPS data.</p>
@@ -1151,37 +1155,58 @@
                 decision: document.getElementById('content-decision'),
                 actuation: document.getElementById('content-actuation')
             };
+            // Get all cloud wrappers
             const overviewCloudWrappers = document.querySelectorAll('.overview-cloud-wrapper');
+            // Get the two containers for button logic
+            // const originalButtonContainer = document.getElementById('overview-button-container'); // No longer needed for this logic
+            // const inactiveButtonContainer = document.getElementById('inactive-buttons-container'); // No longer needed
 
 
             function handleOverviewClick(event) {
-                const wrapper = event.currentTarget;
-                const section = wrapper.dataset.overview;
+                const wrapper = event.currentTarget; // The cloud wrapper that was clicked
+                const section = wrapper.dataset.overview; // e.g., 'perception'
 
                 const clickedButton = overviewButtons[section];
                 const clickedContent = overviewContents[section];
 
-                if (!clickedButton || !clickedContent) return;
+                if (!clickedButton || !clickedContent) return; // Simplified check
 
                 const isAlreadyActive = clickedButton.classList.contains('active');
 
-                // Hide all content and deactivate all buttons/wrappers
-                Object.values(overviewContents).forEach(el => el.classList.add('hidden'));
-                Object.values(overviewButtons).forEach(el => el.classList.remove('active'));
-                overviewCloudWrappers.forEach(el => {
-                    el.classList.remove('active');
-                    el.style.animationPlayState = 'running'; // Resume floating
+                // --- RESET PHASE ---
+                // Deactivate all buttons and content first
+                Object.values(overviewContents).forEach(el => {
+                    if (el) el.classList.add('hidden'); // Add safety check
                 });
+                Object.values(overviewButtons).forEach(el => {
+                    if (el) el.classList.remove('active'); // Add safety check
+                });
+                
+                // Reset styles for all wrappers
+                overviewCloudWrappers.forEach(wr => {
+                    wr.classList.remove('active');
+                    wr.style.animationPlayState = 'running';
+                    wr.style.transform = ''; // Clear transform
+                });
+                // --- END RESET PHASE ---
 
+
+                // --- ACTIVATION PHASE ---
                 if (!isAlreadyActive) {
+                    // If we clicked a new button, activate it
                     clickedButton.classList.add('active');
                     clickedContent.classList.remove('hidden');
-                    wrapper.classList.add('active'); // Add active to wrapper
-                    wrapper.style.animationPlayState = 'paused'; // Pause floating
-                    wrapper.style.transform = 'translateY(0px) scale(1.08)'; // Keep it scaled
+                    wrapper.classList.add('active'); // Style the wrapper
+                    wrapper.style.animationPlayState = 'paused';
+                    wrapper.style.transform = 'translateY(0px) scale(1.08)';
+
+                    // No longer moving other buttons
                 }
+                // If it *was* already active (isAlreadyActive = true),
+                // the RESET PHASE already did everything we need.
             }
 
+            // Attach the listener to the wrappers
             overviewCloudWrappers.forEach(wrapper => {
                 wrapper.addEventListener('click', handleOverviewClick);
             });
