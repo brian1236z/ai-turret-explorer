@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">AI Farm Land Sentry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <!-- Leaflet Map Dependencies -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ7oWA8W3xZ/qWgOfVdBsE5hq9K/ndQ=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20n6aR4wU3S+0c7xH2oH+i+tF4T7L7P8F0S0w2YQjA=" crossorigin=""></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f4;
+            color: #343a40;
+            padding-top: 64px;
+        }
+        .nav-link {
+            @apply px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-white hover:bg-blue-600 transition-colors;
+        }
+        .nav-link.active {
+            @apply bg-blue-700 text-white;
+        }
+        /* Updated mobile nav link style */
+        .mobile-nav-link {
+             @apply block w-full text-center px-4 py-3 mb-2 rounded-md text-base font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 shadow-md hover:shadow-lg hover:scale-105 transition-all transform;
+        }
+        .mobile-nav-link:last-child {
+            @apply mb-0; /* Remove margin from the last button */
+        }
+
+        .lang-btn {
+            @apply px-3 py-1 rounded-md text-sm font-medium transition-colors;
+        }
+        .lang-btn.active {
+            @apply bg-blue-700 text-white;
+        }
+        .lang-btn:not(.active) {
+            @apply text-gray-500 hover:bg-gray-200;
+        }
+        .content-section {
+            @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16;
+        }
+
+        /* NEW KEYFRAMES */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .build-button {
+            @apply w-full text-left p-6 bg-white rounded-lg shadow-lg flex items-center space-x-4 transition-all duration-300 transform;
+            /* Apply the animation */
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Stagger animations for a 'cloudy' effect */
+        #tab-btn-electronics { animation-delay: -3s; }
+        #tab-btn-calibration { animation-delay: -1.5s; }
+        #tab-btn-ai { animation-delay: -4.5s; }
+
+
+        .build-button.active {
+            @apply ring-4 ring-blue-500 ring-opacity-75 scale-105 bg-blue-50;
+            animation-play-state: paused; /* Stop floating when active */
+            transform: scale(1.05); /* Keep scale */
+        }
+        .build-button:not(.active) {
+            @apply hover:bg-gray-50;
+        }
+
+        /* Stop float on hover and scale up */
+        .build-button:hover:not(.active) {
+            animation-play-state: paused;
+            transform: scale(1.05);
+            @apply shadow-xl;
+        }
+
+        .build-icon {
+            @apply text-5xl text-blue-600 w-12;
+        }
+        .tab-content {
+            @apply bg-white p-6 rounded-b-lg rounded-tr-lg shadow-md mt-6;
+        }
+
+        /* REMOVED .overview-card styles */
+
+        .overview-content {
+             @apply bg-white p-6 rounded-lg shadow-xl max-w-3xl mx-auto mt-6;
+        }
+
+        /* NEW styles for System Architecture clouds */
+        .overview-cloud-wrapper {
+            background: linear-gradient(135deg, rgba(147, 197, 253, 0.7), rgba(96, 165, 250, 0.7)); /* Soft blue gradient */
+            border-radius: 50% 30% 50% 30% / 30% 50% 30% 50%; /* Cloud shape */
+            padding: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease-in-out;
+            animation: float 6s ease-in-out infinite; /* Keep the floating animation */
+            cursor: pointer;
+            display: flex; /* Ensure content is centered */
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            width: 280px; /* Set a fixed width */
+            height: 280px; /* Set a fixed height */
+        }
+        .overview-cloud-wrapper:hover {
+            transform: translateY(-15px) scale(1.08); /* Lift and scale more on hover */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation-play-state: paused; /* Stop floating on hover */
+        }
+        /* Stagger animations for overview clouds */
+        #cloud-perception { animation-delay: -1s; }
+        #cloud-decision { animation-delay: -3s; }
+        #cloud-actuation { animation-delay: -5s; }
+
+        .overview-button {
+            @apply flex flex-col items-center justify-center p-4 bg-white bg-opacity-80 rounded-full shadow-inner; /* Inner white circle */
+            color: #1e40af; /* Darker blue text */
+            transition: all 0.3s ease-in-out;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 1/1;
+        }
+        .overview-button:hover {
+            @apply bg-blue-50;
+            color: #1c3580;
+        }
+        .overview-button.active .overview-text-title {
+            color: #000; /* Darken text when active */
+        }
+        .overview-button.active .overview-text-description {
+            color: #333; /* Darken text when active */
+        }
+
+        .overview-cloud-wrapper.active {
+             animation-play-state: paused; /* Stop floating when active */
+             transform: translateY(0px) scale(1.08);
+        }
+
+        .overview-icon-inner {
+            @apply text-5xl;
+            color: #2563eb; /* Blue icon color */
+        }
+        .overview-text-title {
+            @apply text-xl font-semibold mt-2;
+            color: #1e40af; /* Primary blue for title */
+        }
+        .overview-text-description {
+            @apply text-sm text-gray-700 mt-1;
+            color: #4a5568; /* Sub-text color */
+        }
+        /* END of new styles */
+
+
+        .component-card {
+            @apply bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300;
+        }
+        .category-button {
+            @apply px-4 py-2 text-sm font-medium rounded-full cursor-pointer transition-all;
+        }
+        .category-button.active {
+            @apply bg-blue-700 text-white shadow-lg;
+        }
+        .category-button:not(.active) {
+            @apply bg-white text-blue-700 hover:bg-blue-100 shadow;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        model-viewer {
+            width: 100%;
+            height: 600px;
+            background-color: #f8f7f4;
+            --poster-color: #f8f7f4;
+        }
+
+        /* Custom Cloud-like Button Styles */
+        .cloud-button-wrapper {
+            background: linear-gradient(135deg, rgba(147, 197, 253, 0.7), rgba(96, 165, 250, 0.7)); /* Soft blue gradient */
+            border-radius: 50% 30% 50% 30% / 30% 50% 30% 50%; /* Cloud shape */
+            padding: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease-in-out;
+            animation: float 6s ease-in-out infinite; /* Keep the floating animation */
+            cursor: pointer;
+            display: flex; /* Ensure content is centered */
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .cloud-button-wrapper:hover {
+            transform: translateY(-15px) scale(1.08); /* Lift and scale more on hover */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation-play-state: paused; /* Stop floating on hover */
+        }
+
+        /* Adjust individual button delays to maintain cloudy movement */
+        #cloud-mech { animation-delay: -2s; }
+        #cloud-elec { animation-delay: -4.5s; }
+        #cloud-ai { animation-delay: -1.0s; }
+        #cloud-calib { animation-delay: -3.5s; }
+
+        .cloud-button {
+            @apply flex flex-col items-center justify-center p-4 bg-white bg-opacity-80 rounded-full shadow-inner; /* Inner white circle */
+            color: #1e40af; /* Darker blue text */
+            transition: all 0.3s ease-in-out;
+            width: 100%; /* Make inner button take full width of cloud wrapper */
+            height: 100%; /* Make inner button take full height of cloud wrapper */
+            aspect-ratio: 1/1; /* Ensure circular shape for inner button */
+        }
+        .cloud-button:hover {
+            @apply bg-blue-50;
+            color: #1c3580;
+        }
+        .cloud-button.active .cloud-text-title {
+            color: #000; /* Darken text when active */
+        }
+        .cloud-button.active .cloud-text-description {
+            color: #333; /* Darken text when active */
+        }
+
+        .cloud-text-title {
+            @apply text-xl font-semibold mt-2;
+            color: #1e40af; /* Primary blue for title */
+        }
+        .cloud-text-description {
+            @apply text-sm text-gray-700 mt-1;
+            color: #4a5568; /* Sub-text color */
+        }
+        .cloud-icon {
+            @apply text-5xl;
+            color: #2563eb; /* Blue icon color */
+        }
+        #map-container {
+            height: 400px;
+            width: 100%;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        .leaflet-container {
+            height: 100%;
+            width: 100%;
+        }
+        .camera-feed-tab {
+            @apply flex-1 p-3 text-center cursor-pointer font-semibold text-gray-600 border-b-2 border-transparent hover:border-blue-500 transition-colors;
+        }
+        .camera-feed-tab.active {
+            @apply text-blue-700 border-blue-700;
+        }
+        .camera-canvas {
+            @apply w-full aspect-video bg-gray-900 rounded-lg shadow-inner;
+        }
+        /* Style for the composite view container */
+        #camera-feeds-container {
+            overflow-x: scroll;
+            width: 100%;
+            border-radius: 0.5rem;
+        }
+        /* The canvas inside must be wide enough to show 360 degrees */
+        #cam-feed-0 {
+            width: 300%; 
+            min-height: 250px; /* Ensure it has height even on first load */
+        }
+
+        /* --- GOOGLE TRANSLATE WIDGET STYLING --- */
+        /* Hides the floating Google Translate banner and resets body position */
+        .skiptranslate.goog-te-banner-frame {
+            display: none !important;
+        }
+        body {
+            top: 0px !important; 
+        }
+
+        #google_translate_element, 
+        #google_translate_element_mobile {
+            min-width: 120px; 
+        }
+        /* Target the default Google Translate elements to hide clutter */
+        #google_translate_element .goog-te-gadget-simple, 
+        #google_translate_element_mobile .goog-te-gadget-simple {
+            border: none !important;
+            background-color: transparent !important;
+            padding: 0 !important;
+            line-height: 1.2 !important;
+        }
+        /* Hide Google Translate logo and link */
+        #google_translate_element img,
+        #google_translate_element a.goog-logo-link,
+        #google_translate_element_mobile img,
+        #google_translate_element_mobile a.goog-logo-link {
+            display: none !important;
+        }
+        /* Adjust the select box look */
+        .goog-te-combo {
+            /* Inherits styles from Tailwind, but important to remove Google's default border/shadows */
+            @apply border-none p-0 bg-transparent text-sm font-medium text-gray-700;
+            box-shadow: none !important;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="text-2xl font-bold text-blue-700" data-lang-key="nav_title">AI Farm Land Sentry</span>
+                </div>
+
+                <!-- Desktop Nav -->
+                <div class="hidden sm:flex sm:items-center sm:space-x-4">
+                    <div class="flex space-x-4">
+                        <a href="#application-dashboard" class="nav-link active" data-lang-key="nav_dashboard">Dashboard</a>
+                        <a href="#home" class="nav-link" data-lang-key="nav_home">Introduction</a>
+                        <a href="#turret-3d" class="nav-link" data-lang-key="nav_3d">3D Turret</a>
+                        <a href="#overview" class="nav-link" data-lang-key="nav_overview">Architecture</a>
+                        <a href="#components" class="nav-link" data-lang-key="nav_components">Components</a>
+                        <a href="#build" class="nav-link" data-lang-key="nav_build">Build Guides</a>
+                        <a href="#safety" class="nav-link" data-lang-key="nav_safety">Safety</a>
+                    </div>
+
+                    <!-- Google Translate Widget Placeholder (Desktop - STYLED) -->
+                    <div class="ml-4 pl-4 border-l border-gray-200 flex items-center">
+                        <div id="translate-button-desktop" class="flex items-center bg-gray-100 px-3 py-2 rounded-md shadow-sm hover:bg-gray-200 transition-colors cursor-pointer">
+                            <i data-lucide="globe" class="w-4 h-4 mr-2 text-blue-600"></i>
+                            <div id="google_translate_element"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="sm:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                        <span class="sr-only">Open main menu</span>
+                        <!-- Hamburger Icon -->
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <!-- Close Icon (hidden by default) -->
+                        <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (hidden by default) -->
+        <div id="mobile-menu" class="hidden sm:hidden bg-white shadow-lg">
+            <div class="px-4 pt-4 pb-3 space-y-1">
+                <a href="#application-dashboard" class="mobile-nav-link" data-lang-key="nav_dashboard">Dashboard</a>
+                <a href="#home" class="mobile-nav-link" data-lang-key="nav_home">Introduction</a>
+                <a href="#turret-3d" class="mobile-nav-link" data-lang-key="nav_3d">3D Turret</a>
+                <a href="#overview" class="mobile-nav-link" data-lang-key="nav_overview">Architecture</a>
+                <a href="#components" class="mobile-nav-link" data-lang-key="nav_components">Components</a>
+                <a href="#build" class="mobile-nav-link" data-lang-key="nav_build">Build Guides</a>
+                <a href="#safety" class="mobile-nav-link" data-lang-key="nav_safety">Safety</a>
+            </div>
+            <!-- Google Translate Widget Placeholder (Mobile - STYLED) -->
+            <div class="pt-4 pb-3 border-t border-gray-200">
+                <div class="px-4">
+                    <p class="text-sm font-medium text-gray-500 mb-2 flex items-center">
+                        <i data-lucide="globe" class="w-4 h-4 mr-2"></i> Language Selector
+                    </p>
+                    <div id="google_translate_element_mobile" class="w-full"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- NEW OPERATIONAL DASHBOARD SECTION -->
+        <section id="application-dashboard" class="content-section bg-gray-100 shadow-inner min-h-screen">
+            <h2 class="text-4xl font-bold text-center mb-10 text-gray-900" data-lang-key="dashboard_title">AI Sentry Operational Dashboard</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- COLUMN 1: Geo Map & Turret Status -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Geo-Spatial Sentry Map -->
+                    <div class="component-card p-6">
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-4 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="icon-map mr-2"></span> Geo-Spatial Sentry Map & Geo-Fencing
+                            </div>
+                            <button onclick="activateMapLocator()" class="text-sm px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center font-semibold">
+                                <i data-lucide="map-pin" class="w-4 h-4 mr-1"></i> Set Sentry Location
+                            </button>
+                        </h3>
+                        <div id="map-container">
+                            <div id="sentryMap" class="leaflet-container"></div>
+                        </div>
+                    </div>
+
+                    <!-- Live Camera Feeds (Unified Panoramic View) -->
+                    <div class="component-card p-6">
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-4 flex items-center">
+                            <span class="icon-eye mr-2"></span> 360° Panoramic Operational View
+                        </h3>
+                        <!-- Container handles horizontal scroll for the 300% wide canvas -->
+                        <div id="camera-feeds-container" class="overflow-x-scroll relative border-2 border-gray-300 rounded-lg shadow-inner bg-gray-900">
+                            <!-- Single canvas for 360 view (Cam 0) -->
+                            <canvas id="cam-feed-0" class="camera-canvas"></canvas>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2 text-center">Scroll left/right to view the full 360° environment. Geo-coordinates on screen are relative to the Sentry's location.</p>
+                    </div>
+                </div>
+
+                <!-- COLUMN 2: Live Data, Controls, & LLM Report -->
+                <div class="lg:col-span-1 space-y-8">
+                    <!-- Live Operational Data & Controls -->
+                    <div class="component-card p-6">
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-4 flex items-center">
+                            <span class="icon-zap mr-2"></span> Live Operational Data
+                        </h3>
+
+                        <!-- Metrics Grid -->
+                        <div class="grid grid-cols-2 gap-4 text-center mb-6" id="metric-grid">
+                            <div class="bg-blue-50 p-3 rounded-lg">
+                                <p class="text-sm font-medium text-gray-600 flex items-center justify-center"><span class="icon-battery mr-1"></span> Power (%)</p>
+                                <p class="text-2xl font-bold text-blue-900" id="metric-power">--</p>
+                            </div>
+                            <div class="bg-blue-50 p-3 rounded-lg">
+                                <p class="text-sm font-medium text-gray-600 flex items-center justify-center"><span class="icon-activity mr-1"></span> Uptime (%)</p>
+                                <p class="text-2xl font-bold text-blue-900" id="metric-uptime">--</p>
+                            </div>
+                            <div class="bg-blue-50 p-3 rounded-lg">
+                                <p class="text-sm font-medium text-gray-600 flex items-center justify-center"><span class="icon-thermometer mr-1"></span> Temp (°C)</p>
+                                <p class="text-2xl font-bold text-blue-900" id="metric-temp">--</p>
+                            </div>
+                            <div class="bg-blue-50 p-3 rounded-lg">
+                                <p class="text-sm font-medium text-gray-600 flex items-center justify-center"><span class="icon-gauge mr-1"></span> Gas Level (%)</p>
+                                <p class="text-2xl font-bold text-blue-900" id="metric-gas">--</p>
+                            </div>
+                            
+                            <!-- Paintball Metric - UPDATED WITH EDITOR BUTTON -->
+                            <div class="bg-blue-100 p-3 rounded-lg col-span-2 relative">
+                                <p class="text-sm font-medium text-gray-700 flex items-center justify-center"><span class="icon-box mr-1"></span> Paintball Payload</p>
+                                <p class="text-2xl font-bold text-blue-900" id="metric-paintballs">--</p>
+                                <button onclick="openCapacityEditor()" class="absolute top-2 right-2 p-1 text-xs text-blue-700 hover:text-blue-900 hover:bg-blue-200 rounded-md transition-colors font-semibold flex items-center">
+                                    <i data-lucide="edit-3" class="w-3 h-3 mr-1"></i> Edit Max
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Manual Control Panel -->
+                        <h4 class="text-lg font-semibold text-gray-700 mb-3 border-t pt-4 mt-4">Manual Control Panel</h4>
+                        <div class="flex items-center justify-between space-x-4 mb-4">
+                            <div class="w-full text-center">
+                                <p class="text-sm font-medium text-gray-600 mb-1">Target Azimuth (Pan)</p>
+                                <p class="text-3xl font-extrabold text-red-600" id="manual-azimuth">0°</p>
+                                <div class="flex justify-center space-x-2 mt-2">
+                                    <button onclick="changeAzimuth(-5)" class="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"><i data-lucide="chevron-left"></i></button>
+                                    <button onclick="changeAzimuth(5)" class="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"><i data-lucide="chevron-right"></i></button>
+                                </div>
+                            </div>
+                            <button onclick="manualFire()" id="fire-button" class="flex-shrink-0 w-1/2 p-4 bg-red-600 text-white font-bold rounded-lg shadow-xl hover:bg-red-700 transition-transform transform hover:scale-105 active:scale-95">
+                                FIRE!
+                            </button>
+                        </div>
+                        
+                        <!-- Manual Refill Input -->
+                        <h4 class="text-lg font-semibold text-gray-700 mb-2 border-t pt-4 mt-4">Refill Payload (Add Stock)</h4>
+                        <div class="flex space-x-2">
+                            <input type="number" id="refill-input" class="w-2/3 p-2 border border-gray-300 rounded-lg" placeholder="e.g., 200" min="0" max="1000">
+                            <button onclick="resetPaintballPayload()" class="w-1/3 p-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors">Add</button>
+                        </div>
+
+                        <!-- NEW MANUAL REMOVAL INPUT -->
+                        <h4 class="text-lg font-semibold text-gray-700 mb-2 border-t pt-4 mt-4">Adjust Payload (Remove/Correct)</h4>
+                        <div class="flex space-x-2">
+                            <input type="number" id="remove-input" class="w-2/3 p-2 border border-gray-300 rounded-lg" placeholder="e.g., 50" min="0">
+                            <button onclick="removePaintballPayload()" class="w-1/3 p-2 bg-yellow-600 text-white font-semibold rounded-lg hover:bg-yellow-700 transition-colors">Remove</button>
+                        </div>
+
+                    </div>
+
+                    <!-- AI System Status Report (LLM) -->
+                    <div class="component-card p-6 bg-blue-50 border-2 border-blue-200">
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-4 flex items-center">
+                            <span class="icon-brain mr-2"></span> AI System Status Report
+                        </h3>
+                        <p class="text-sm text-gray-600 mb-4" id="ai-report-status">Click below to generate a new diagnostic report.</p>
+                        <button onclick="generateAIReport()" class="w-full p-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors mb-4">
+                            Generate Report
+                        </button>
+                        <div id="ai-report-output" class="text-sm p-3 bg-white rounded-lg shadow-inner min-h-[100px] text-gray-800">
+                            No recent report available.
+                        </div>
+                        <div id="ai-report-sources" class="text-xs text-gray-500 mt-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+                <!-- COLUMN 3: Logs and Charts -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Real-time Threat Log -->
+                    <div class="component-card p-6">
+                        <h3 class="text-2xl font-semibold text-red-700 mb-4 flex items-center">
+                            <span class="icon-alert-triangle mr-2"></span> Real-time Threat Log (YOLOv11)
+                        </h3>
+                        <div class="max-h-96 overflow-y-auto bg-gray-50 p-3 rounded-lg shadow-inner">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Confidence</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Azimuth</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="threat-log-body">
+                                    <!-- Log entries inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1 space-y-8">
+                    <!-- Threat Detection History Chart -->
+                    <div class="component-card p-6">
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-4 flex items-center">
+                            <span class="icon-bar-chart-2 mr-2"></span> Threat Detection History
+                        </h3>
+                        <div class="chart-container-small">
+                            <canvas id="threatHistoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+        <!-- END NEW OPERATIONAL DASHBOARD SECTION -->
+
+
+        <section id="home" class="content-section bg-white shadow-inner">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl" data-lang-key="home_title">AI-Powered Autonomous Turret</h1>
+                <p class="mt-6 text-xl leading-8 text-gray-700 max-w-3xl mx-auto" data-lang-key="home_subtitle">An interactive guide to the construction and programming of an intelligent, non-lethal wildlife deterrent. This system is designed to identify and discourage specific animals from protected areas while actively detecting and avoiding human presence.</p>
+                <div class="mt-10 flex items-center justify-center gap-x-6">
+                    <a href="#overview" class="rounded-md bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-3 text-lg font-semibold text-white shadow-md hover:shadow-lg hover:scale-105 transition-all transform" data-lang-key="home_explore_btn">Explore the System</a>
+                </div>
+            </div>
+            <div class="mt-16 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+                    <span class="text-6xl" role="img" aria-label="macaque">🐵</span>
+                    <h3 class="mt-4 text-lg font-semibold" data-lang-key="home_target1_title">Target: Macaque</h3>
+                    <p class="text-gray-600" data-lang-key="home_target1_desc">Formosan Macaque (*Macaca cyclopis*)</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+                    <span class="text-6xl" role="img" aria-label="deer">🦌</span>
+                    <h3 class="mt-4 text-lg font-semibold" data-lang-key="home_target2_title">Target: Muntjac</h3>
+                    <p class="text-gray-600" data-lang-key="home_target2_desc">Reeves's Muntjac (*Muntiacus reevesi*)</p>
+                </div>
+                <div class="bg-red-50 p-6 rounded-lg shadow-md border-2 border-red-300">
+                    <span class="text-6xl" role="img" aria-label="person">👤</span>
+                    <h3 class="mt-4 text-lg font-semibold text-red-800" data-lang-key="home_avoid_title">Avoid: Human</h3>
+                    <p class="text-red-700" data-lang-key="home_avoid_desc">System enters safe mode on human detection.</p>
+                </div>
+            </div>
+        </section>
+
+        
+
+<section id="turret-3d" class="content-section bg-gray-100 shadow-inner">
+            <h2 class="text-3xl font-bold text-center mb-4" data-lang-key="3d_title">Interactive 3D Turret View</h2>
+            <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12" data-lang-key="3d_subtitle">Explore the AI Turret from every angle! Use your mouse/finger to rotate, pan, and zoom the model. This interactive view allows you to inspect the mechanical and electronic components in detail.</p>
+            <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
+                
+
+<model-viewer
+                    src="https://brianhexer.github.io/AI-Farm-Land-Sentry/ai-turret-explorer.glb"
+                    poster="https://brianhexer.github.io/AI-Farm-Land-Sentry/ai-turret-explorer.webp"
+                    alt="Interactive 3D model of the AI Turret"
+                    ar
+                    ar-modes="webxr scene-viewer quick-look"
+                    camera-controls
+                    touch-action="pan-y"
+                    auto-rotate
+                    shadow-intensity="1"
+                    environment-image="neutral">
+                    <div class="progress-bar hide" slot="progress-bar">
+                        <div class="update-bar"></div>
+                    </div>
+                </model-viewer>
+                <div class="p-6 text-center text-gray-600 text-sm">
+                    <p data-lang-key="3d_note1">
+                        <strong>Note:</strong> This is an interactive 3D model viewer. It is currently displaying the "ai-turret-explorer-v2" model.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+
+<section id="overview" class="content-section">
+            <h2 class="text-3xl font-bold text-center mb-4" data-lang-key="overview_title">System Architecture</h2>
+            <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12" data-lang-key="overview_subtitle">The turret operates on a classic "Perception-Decision-Actuation" loop. This model explains how the components work together in real-time. Click a cloud to learn more about its function and key components.</p>
+
+            <div class="flex flex-col md:flex-row items-center justify-center gap-8 mb-8">
+
+                <div id="cloud-perception" class="overview-cloud-wrapper" data-overview="perception">
+                    <button class="overview-button" id="btn-perception">
+                        <span class="overview-icon-inner" role="img" aria-label="eye">👁️</span>
+                        <h3 class="overview-text-title" data-lang-key="overview_btn1_title">1. Perception</h3>
+                        <p class="overview-text-description" data-lang-key="overview_btn1_desc">Sensing the environment.</p>
+                    </button>
+                </div>
+
+                <div id="cloud-decision" class="overview-cloud-wrapper" data-overview="decision">
+                     <button class="overview-button" id="btn-decision">
+                        <span class="overview-icon-inner" role="img" aria-label="brain">🧠</span>
+                        <h3 class="overview-text-title" data-lang-key="overview_btn2_title">2. Decision</h3>
+                        <p class="overview-text-description" data-lang-key="overview_btn2_desc">Analyzing and planning.</p>
+                    </button>
+                </div>
+
+                <div id="cloud-actuation" class="overview-cloud-wrapper" data-overview="actuation">
+                     <button class="overview-button" id="btn-actuation">
+                        <span class="overview-icon-inner" role="img" aria-label="gear">⚙️</span>
+                        <h3 class="overview-text-title" data-lang-key="overview_btn3_title">3. Actuation</h3>
+                        <p class="overview-text-description" data-lang-key="overview_btn3_desc">Taking physical action.</p>
+                    </button>
+                </div>
+            </div>
+
+            <div id="content-perception" class="overview-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content1_title">Perception: The 360° Vision System</h3>
+                <p class="text-gray-700" data-lang-key="overview_content1_desc">The system perceives its environment using a quad-camera array (4x Logitech C615 webcams) providing a seamless 360-degree panoramic view. This continuous stream of visual data is the primary sensory input, fed directly to the AI model for analysis. This setup eliminates blind spots and ensures comprehensive situational awareness.</p>
+            </div>
+
+            <div id="content-decision" class="overview-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content2_title">Decision: The AI Brain (Jetson & YOLO)</h3>
+                <p class="text-gray-700" data-lang-key="overview_content2_desc">The heart of the decision-making process is the NVIDIA Jetson Orin Nano. It runs a custom-trained YOLO model, processing all camera feeds in real-time. This model detects and classifies objects (macaque, muntjac, human). The control software applies a simple logic: if a human is seen, enter "Safe Mode." If a target animal is seen (and no human), calculate its position and initiate tracking.</p>
+            </div>
+
+            <div id="content-actuation" class="overview-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content3_title">Actuation: The Mechanical Response</h3>
+                <p class="text-gray-700" data-lang-key="overview_content3_desc">Based on the AI's decision, the Jetson commands the physical hardware. It sends signals to two NEMA 23 stepper motors via DM542S drivers, which move the high-torque herringbone gear pan-tilt mechanism to aim the paintball gun. To fire, it sends a signal to a relay, which activates a 24V solenoid to pull the trigger. This entire loop repeats multiple times per second.</p>
+            </div>
+        </section>
+
+        <section id="components" class="content-section">
+            <h2 class="text-3xl font-bold text-center mb-4" data-lang-key="components_title">Interactive Bill of Materials</h2>
+            <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12" data-lang-key="components_subtitle">This is the complete list of components required for the project. Use the filters to explore parts by category or use the search bar to find a specific item. A breakdown of component categories is shown in the chart.</p>
+
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="w-full md:w-1/3">
+                    <h3 class="text-2xl font-semibold text-center mb-4" data-lang-key="components_chart_title">Component Categories</h3>
+                    <div class="chart-container">
+                        <canvas id="bomChart"></canvas>
+                    </div>
+
+                    <h3 class="text-2xl font-semibold text-center mb-4 mt-12" data-lang-key="components_software_title">Key Software Stack</h3>
+                    <div class="space-y-3">
+                        <div class="p-4 bg-white rounded-lg shadow-md">
+                            <h4 class="font-semibold text-blue-800" data-lang-key="components_sw1_title">Operating System</h4>
+                            <p class="text-sm text-gray-700" data-lang-key="components_sw1_desc">NVIDIA JetPack SDK (on Jetson)</p>
+                            <p class="text-xs text-gray-500" data-lang-key="components_sw1_notes">Includes Ubuntu, CUDA, cuDNN, and TensorRT.</p>
+                        </div>
+                        <div class="p-4 bg-white rounded-lg shadow-md">
+                            <h4 class="font-semibold text-blue-800" data-lang-key="components_sw2_title">Core Language</h4>
+                            <p class="text-sm text-gray-700" data-lang-key="components_sw2_desc">Python 3.x</p>
+                            <p class="text-xs text-gray-500" data-lang-key="components_sw2_notes">For the main control script, inference, and hardware I/O.</p>
+                        </div>
+                        <div class="p-4 bg-white rounded-lg shadow-md">
+                            <h4 class="font-semibold text-blue-800" data-lang-key="components_sw3_title">AI / Object Detection</h4>
+                            <p class="text-sm text-gray-700" data-lang-key="components_sw3_desc">Ultralytics YOLO (v11 cited, v8+ common)</p>
+                            <p class="text-xs text-gray-500" data-lang-key="components_sw3_notes">Used for training and running the detection model.</p>
+                        </div>
+                        <div class="p-4 bg-white rounded-lg shadow-md">
+                            <h4 class="font-semibold text-blue-800" data-lang-key="components_sw4_title">Key Libraries</h4>
+                            <p class="text-sm text-gray-700" data-lang-key="components_sw4_desc">OpenCV, TensorRT, RPi.GPIO (or similar)</p>
+                            <p class="text-xs text-gray-500" data-lang-key="components_sw4_notes">For camera vision, model acceleration, and motor control.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-2/3">
+                    <div class="mb-4">
+                        <input type="text" id="searchInput" class="w-full px-4 py-3 rounded-lg shadow-inner border border-gray-300" placeholder="Search for a component (e.g., 'Jetson', 'NEMA 23')..." data-lang-key="components_search_placeholder">
+                    </div>
+                    <div id="category-filters" class="flex flex-wrap gap-2 mb-6">
+                    </div>
+
+                    <div id="component-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="build" class="content-section bg-gray-100 shadow-inner">
+            <h2 class="text-3xl font-bold text-center mb-12" data-lang-key="build_title">Interactive Build Guides</h2>
+            <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12" data-lang-key="build_subtitle">Explore the four core phases of building this AI Turret. Click on any cloud below to reveal detailed steps, challenges, and insights for that stage of development.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 justify-items-center">
+
+                <!-- Mechanical Assembly Cloud Button --><div id="cloud-mech" class="cloud-button-wrapper" data-tab="mechanical">
+                    <button class="cloud-button" id="tab-btn-mechanical">
+                        <span class="cloud-icon" role="img" aria-label="gears">🔩</span>
+                        <h3 class="cloud-text-title" data-lang-key="build_btn1_title">Mechanical Assembly</h3>
+                        <p class="cloud-text-description" data-lang-key="build_btn1_desc">Physical frame & motion system</p>
+                    </button>
+                </div>
+
+                <!-- Electronics & Wiring Cloud Button --><div id="cloud-elec" class="cloud-button-wrapper" data-tab="electronics">
+                    <button class="cloud-button" id="tab-btn-electronics">
+                        <span class="cloud-icon" role="img" aria-label="circuit">⚡</span>
+                        <h3 class="cloud-text-title" data-lang-key="build_btn2_title">Electronics & Wiring</h3>
+                        <p class="cloud-text-description" data-lang-key="build_btn2_desc">Power, logic & control components</p>
+                    </button>
+                </div>
+
+                <!-- AI Model & Software Cloud Button --><div id="cloud-ai" class="cloud-button-wrapper" data-tab="ai">
+                    <button class="cloud-button" id="tab-btn-ai">
+                        <span class="cloud-icon" role="img" aria-label="brain">🧠</span>
+                        <h3 class="cloud-text-title" data-lang-key="build_btn3_title">AI Model & Software</h3>
+                        <p class="cloud-text-description" data-lang-key="build_btn3_desc">Training vision & control script</p>
+                    </button>
+                </div>
+
+                <!-- Calibration & Testing Cloud Button --><div id="cloud-calib" class="cloud-button-wrapper" data-tab="calibration">
+                    <button class="cloud-button" id="tab-btn-calibration">
+                        <span class="cloud-icon" role="img" aria-label="target">🎯</span>
+                        <h3 class="cloud-text-title" data-lang-key="build_btn4_title">Calibration & Testing</h3>
+                        <p class="cloud-text-description" data-lang-key="build_btn4_desc">Aligning vision & hardware</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Collapsible content sections --><div id="tab-content-mechanical" class="tab-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-4" data-lang-key="build_content1_title">Phase 1: Mechanical Assembly</h3>
+                <p class="mb-6 text-gray-700" data-lang-key="build_content1_desc">This phase involves building the physical structure and motion system. Precision and rigidity are the primary goals. The core of this phase is the high-torque herringbone gear drive, which provides backlash-free, precise aiming.</p>
+                <ul class="space-y-4">
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg" data-lang-key="build_content1_step1_title">1. Construct the Main Frame</h4>
+                        <p class="text-gray-600" data-lang-key="build_content1_step1_desc">Assemble the 2020 aluminum extrusion base and gantry. Use corner brackets and T-nuts to create a rigid skeleton, ensuring all corners are perfectly square.</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg" data-lang-key="build_content1_step2_title">2. Fabricate & Assemble Pan-Tilt Drive</h4>
+                        <p class="text-gray-600" data-lang-key="build_content1_step2_desc">3D print the large herringbone gears (pan and tilt) and motor pinions from PETG or ABS. Mount the pan motor inside the frame, meshing with the main ring gear which sits on a thrust bearing. Assemble the tilt gantry with its motor and gear, supported by deep groove ball bearings.</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg" data-lang-key="build_content1_step3_title">3. Mount Payload & Vision System</h4>
+                        <p class="text-gray-600" data-lang-key="build_content1_step3_desc">Secure the paintball gun in its 3D printed cradle. Install the 24V solenoid using a custom bracket, aligning it perfectly with the trigger. Mount the four webcams on the stationary base frame to create the overlapping 360° field of view.</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="tab-content-electronics" class="tab-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-4" data-lang-key="build_content2_title">Phase 2: Electronics & Wiring</h3>
+                <p class="mb-6 text-gray-700" data-lang-key="build_content2_desc">This phase connects all components, distributing power and control signals. A clean, methodical wiring plan with proper grounding is essential to prevent electrical noise from interfering with the Jetson's logic signals.</p>
+                <ul class="space-y-4">
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg" data-lang-key="build_content2_step1_title">1. Power Distribution</h4>
+                        <p class="text-gray-600" data-lang-key="build_content2_step1_desc">Install the 12V Mean Well PSU. Use a terminal block to distribute 12V power to the Jetson, motor drivers, and two DC-DC converters. One buck converter steps 12V down to 5V (for logic), and one boost converter steps 12V up to 24V (for the solenoid).</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg" data-lang-key="build_content2_step2_title">2. Motion Control Wiring</h4>
+                        <p class="text-gray-600" data-lang-key="build_content2_step2_desc">Connect the Jetson's GPIO pins to the `PUL+` (Pulse) and `DIR+` (Direction) inputs on the DM542S motor drivers. Connect the driver `PUL-` and `DIR-` pins to the Jetson's GND. Connect the four motor wires (A+, A-, B+, B-) from each NEMA 23 to its corresponding driver.</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg" data-lang-key="build_content2_step3_title">3. Firing & Vision Connections</h4>
+                        <p class="text-gray-600" data-lang-key="build_content2_step3_desc">Wire the 24V solenoid to a 1-channel relay. The relay's logic side (VCC, GND, IN) is controlled by a 5V signal from the Jetson. To avoid USB bandwidth limits, connect two cameras to the Jetson's USB-A ports and the other two cameras to a powered USB-C hub.</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="tab-content-ai" class="tab-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-4" data-lang-key="build_content3_title">Phase 3: AI Model & Software</h3>
+                <p class="mb-6 text-gray-700" data-lang-key="build_content3_desc">This phase involves creating the "brain" of the turret. A custom object detection model is trained to recognize targets and the control script integrates all hardware into one autonomous system.</p>
+                <ul class="space-y-4">
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg" data-lang-key="build_content3_step1_title">1. Build the Custom Dataset</h4>
+                        <p class="text-gray-600" data-lang-key="build_content3_step1_desc">Gather thousands of images for three classes: `formosan_macaque`, `muntjac`, and `human`. The 'human' class must be extremely diverse (poses, clothing, lighting) to ensure safety.</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg" data-lang-key="build_content3_step2_title">2. Annotate and Train (YOLO)</h4>
+                        <p class="text-gray-600" data-lang-key="build_content3_step2_desc">Use a tool like CVAT or Roboflow to draw bounding boxes around all objects in the dataset. Train a YOLO model (using the `ultralytics` package) on this custom dataset. This "transfer learning" process fine-tunes a pre-trained model for this specific task, resulting in a `best.pt` file.</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg" data-lang-key="build_content3_step3_title">3. Deploy with TensorRT & Write Control Script</h4>
+                        <p class="text-gray-600" data-lang-key="build_content3_step3_desc">On the Jetson, convert the `best.pt` model to a `best.engine` file using `model.export(format='engine')`. This provides a massive speedup. The final Python script uses multi-threading to read all cameras, runs inference, and implements a state machine (SAFE, TRACKING, SEARCHING) to control the PID motor loops and firing relay.</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="tab-content-calibration" class="tab-content hidden">
+                <h3 class="text-2xl font-semibold text-blue-700 mb-4" data-lang-key="build_content4_title">Phase 4: Calibration & Testing</h3>
+                <p class="mb-6 text-gray-700" data-lang-key="build_content4_desc">This final phase "glues" the vision system to the motion system, ensuring that what the camera sees is where the gun points. This is followed by performance tuning and critical safety checks.</p>
+                <ul class="space-y-4">
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg" data-lang-key="build_content4_step1_title">1. Intrinsic Camera Calibration</h4>
+                        <p class="text-gray-600" data-lang-key="build_content4_step1_desc">For each of the four cameras, use OpenCV and a printed chessboard pattern to calculate the lens distortion. This step generates a camera matrix and distortion coefficients that are used to `cv2.undistort()` every frame, ensuring all lines are straight.</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg" data-lang-key="build_content4_step2_title">2. Turret-to-Camera Mapping (Homography)</h4>
+                        <p class="text-gray-600" data-lang-key="build_content4_step2_desc">This is the most critical step. Mount a laser pointer on the gun. Write a script to move the turret to a grid of known angles. At each point, record the laser dot's `(pixel_x, pixel_y)` coordinate. This creates a dataset mapping angles to pixels, which is used to compute a transformation matrix. This matrix allows the code to instantly convert a target's pixel location into the motor angles needed to aim at it.</p>
+                    </li>
+                    <li class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <h4 class="font-semibold text-lg" data-lang-key="build_content4_step3_title">3. PID Tuning & Field Testing</h4>
+                        <p class="text-gray-600" data-lang-key="build_content4_step3_desc">In a safe area, tune the `kP`, `kI`, and `kD` gains for the pan and tilt PID controllers. This ensures the tracking is fast, smooth, and does not overshoot the target. Start with P, then D, then I.</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- NEW PROJECT DATA TELEMETRY SECTION -->
+        <section id="telemetry" class="content-section bg-gray-50 shadow-inner">
+            <h2 class="text-3xl font-bold text-center mb-4" data-lang-key="data_title">Project Data Telemetry</h2>
+            <p class="text-lg text-gray-700 text-center max-w-3xl mx-auto mb-12" data-lang-key="data_subtitle">Raw JSON structures used for simulation, calibration, and operational state management within the dashboard demo.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-semibold text-blue-700 mb-3" data-lang-key="data_metrics_title">1. Operational Metrics (systemStatusData)</h3>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto text-sm shadow-inner min-h-[300px]"><code id="data-metrics"></code></pre>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-semibold text-blue-700 mb-3" data-lang-key="data_threat_title">2. Threat Log Template (mockThreats)</h3>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto text-sm shadow-inner min-h-[300px]"><code id="data-threats"></code></pre>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-6 md:col-span-2">
+                    <h3 class="text-xl font-semibold text-blue-700 mb-3" data-lang-key="data_geo_title">3. Geo-Spatial Coordinates (Map Data)</h3>
+                    <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto text-sm shadow-inner min-h-[300px]"><code id="data-geo"></code></pre>
+                </div>
+
+            </div>
+        </section>
+
+
+        <section id="safety" class="content-section bg-red-100 border-t-4 border-red-500">
+            <h2 class="text-3xl font-bold text-center text-red-800 mb-8" data-lang-key="safety_title">Safety & Ethical Protocols</h2>
+            <p class="text-lg text-red-700 text-center max-w-3xl mx-auto mb-12" data-lang-key="safety_subtitle">Safety is the highest priority. This system is an autonomous tool, and its development and operation carry significant responsibility. These protocols are mandatory and non-negotiable.</p>
+            <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-xl p-8">
+                <ul class="space-y-6">
+                    <li class="flex items-start">
+                        <span class="text-3xl mr-4 text-red-600" role="img" aria-label="stop button">🛑</span>
+                        <div>
+                            <h4 class="text-xl font-semibold text-red-800" data-lang-key="safety_item1_title">Physical E-Stop</h4>
+                            <p class="text-gray-700" data-lang-key="safety_item1_desc">A large, red, physical "Emergency Stop" button must be wired to cut all power to the motors and firing solenoid, providing a foolproof hardware-level override.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-3xl mr-4 text-red-600" role="img" aria-label="shield">🛡️</span>
+                        <div>
+                            <h4 class="text-xl font-semibold text-red-800" data-lang-key="safety_item2_title">Robust Human Detection</h4>
+                            <p class="text-gray-700" data-lang-key="safety_item2_desc">The "Safe Mode" is the primary software defense. The confidence threshold for human detection must be set conservatively low (e.g., 0.3) to prioritize avoiding false negatives (failing to see a human) over false positives.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-3xl mr-4 text-red-600" role="img"aria-label="map">🗺️</span>
+                        <div>
+                            <h4 class="text-xl font-semibold text-red-800" data-lang-key="safety_item3_title">Geofencing</h4>
+                            <p class="text-gray-700" data-lang-key="safety_item3_desc">The turret's operational range must be programmatically limited to prevent it from aiming or firing outside the designated protected area.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-3xl mr-4 text-red-600" role="img" aria-label="person watching">👀</span>
+                        <div>
+                            <h4 class="text-xl font-semibold text-red-800" data-lang-key="safety_item4_title">Supervised Operation</h4>
+                            <p class="text-gray-700" data-lang-key="safety_item4_desc">The system must never be left completely unattended. A human operator must always be present and able to intervene using the E-Stop.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 mt-16 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p data-lang-key="footer_copyright">&copy; 2025 AI Farm Land Sentry. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- UPDATED MODAL STRUCTURE -->
+    <div id="statusModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden z-[100] flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full text-center">
+            <div id="modal-content-area">
+                <!-- Dynamic content (message or input form) will be injected here -->
+                <h3 class="text-xl font-bold text-blue-700 mb-4" id="modal-title">System Message</h3>
+                <p class="text-gray-700 mb-6" id="modal-message">Loading...</p>
+                <button onclick="closeModal()" class="w-full p-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">OK</button>
+            </div>
+        </div>
+    </div>
+    <!-- END UPDATED MODAL STRUCTURE -->
+
+    <script>
+        // --- API KEY (Mock Key from conversation history) ---
+        const apiKey = "AIzaSyAtjySdJGtTT5S_BXZwkpyidNuu9FSm4vw"; 
+
+        let sentryMap, highPriorityLayer, lowPriorityLayer, sentryMarker, latestThreatMarker, threatLine;
+        let currentAzimuth = 0; // Current manual targeting azimuth
+        let camCanvas, camContext; 
+        let mapLocationListener = null; // Used to manage the map locator tool
+
+        // --- PROJECT DATA STRUCTURES (Simulated Telemetry) ---
+        let systemStatusData = {
+            powerLevel: 0.92, // 92%
+            cameraUptime: 0.998, // 99.8%
+            threatsDetected24h: 3,
+            operatingTempCelsius: 45,
+            lastMaintenanceDaysAgo: 14,
+            firmwareVersion: "2.1.4",
+            gasLevel: 0.78, // 78%
+            initialPaintballCount: 1000,
+            actuatorTriggerCount: 53,
+            assetHealth: {
+                battery: 85,
+                computingUnit: 95,
+                structure: 100,
+                motionSystem: 90,
+                visionSensor: 99
+            },
+            threatDetectionHistory: [1, 2, 4, 3, 5, 8, 3] 
+        };
+
+        let mockThreats = [
+            { id: 1, time: '11:23 PM', type: 'Rabbit detected', confidence: '0.88', severity: 'low', azimuth: 210, model: 'YOLOv11', offset: 0.0003 },
+            { id: 2, time: '02:15 AM', type: 'Unauthorized drone', confidence: '0.99', severity: 'high', azimuth: 45, model: 'YOLOv11', offset: 0.0006 },
+            { id: 3, time: '05:40 AM', type: 'Deer movement', confidence: '0.91', severity: 'medium', azimuth: 330, model: 'YOLOv11', offset: 0.0004 },
+            { id: 4, time: '09:05 AM', type: 'Small rodent', confidence: '0.75', severity: 'low', azimuth: 155, model: 'YOLOv11', offset: 0.0002 },
+            { id: 5, time: '10:30 AM', type: 'Human presence', confidence: '0.96', severity: 'high', azimuth: 90, model: 'YOLOv11', offset: 0.0005 },
+        ];
+
+        const geoSpatialData = {
+            sentryLatLng: [34.0522, -118.2437],
+            highPriorityZoneCoords: [
+                [34.0527, -118.2436],
+                [34.0527, -118.2440],
+                [34.0523, -118.2440],
+                [34.0523, -118.2436],
+            ],
+            lowPriorityZoneCoords: [
+                [34.0521, -118.2431],
+                [34.0517, -118.2431],
+                [34.0517, -118.2435],
+                [34.0521, -118.2435],
+            ],
+        };
+        // --- END PROJECT DATA STRUCTURES ---
+
+
+        // --- TRANSLATION SCRIPT (MINIMALIST FOR GOOGLE TRANSLATE WIDGET) ---
+        let currentLanguage = 'en'; 
+        const translations = {
+            'en': {
+                'page_title': 'AI Farm Land Sentry',
+                'lang_btn_text': 'EN',
+                'lang_btn_title': 'Language',
+                'nav_title': 'AI Farm Land Sentry',
+                'nav_dashboard': 'Dashboard',
+                'nav_home': 'Introduction',
+                'nav_3d': '3D Turret',
+                'nav_overview': 'Architecture',
+                'nav_components': 'Components',
+                'nav_build': 'Build Guides',
+                'nav_safety': 'Safety',
+                'nav_lang_title': 'Language', 
+                'home_title': 'AI Farm Land Sentry',
+                'home_subtitle': 'An interactive guide to the construction and programming of an intelligent, non-lethal wildlife deterrent. This system is designed to identify and discourage specific animals from protected areas while actively detecting and avoiding human presence.',
+                'home_explore_btn': 'Explore the System',
+                'home_target1_title': 'Target: Macaque',
+                'home_target1_desc': "Formosan Macaque (*Macaca cyclopis*)",
+                'home_target2_title': 'Target: Muntjac',
+                'home_target2_desc': "Reeves's Muntjac (*Muntiacus reevesi*)",
+                'home_avoid_title': 'Avoid: Human',
+                'home_avoid_desc': 'System enters safe mode on human detection.',
+                '3d_title': 'Interactive 3D Turret View',
+                '3d_subtitle': 'Explore the AI Turret from every angle! Use your mouse/finger to rotate, pan, and zoom the model. This interactive view allows you to inspect the mechanical and electronic components in detail.',
+                '3d_note1': '<strong>Note:</strong> This is an interactive 3D model viewer. It is currently displaying the "ai-turret-explorer-v2" model.',
+                'overview_title': 'System Architecture',
+                'overview_subtitle': 'The turret operates on a classic "Perception-Decision-Actuation" loop. This model explains how the components work together in real-time. Click a cloud to learn more about its function and key components.',
+                'overview_btn1_title': '1. Perception',
+                'overview_btn1_desc': 'Sensing the environment.',
+                'overview_btn2_title': '2. Decision',
+                'overview_btn2_desc': 'Analyzing and planning.',
+                'overview_btn3_title': '3. Actuation',
+                'overview_btn3_desc': 'Taking physical action.',
+                'overview_content1_title': 'Perception: The 360° Vision System',
+                'overview_content1_desc': 'The system perceives its environment using a quad-camera array (4x Logitech C615 webcams) providing a seamless 360-degree panoramic view. This continuous stream of visual data is the primary sensory input, fed directly to the AI model for analysis. This setup eliminates blind spots and ensures comprehensive situational awareness.',
+                'overview_content2_title': 'Decision: The AI Brain (Jetson & YOLO)',
+                'overview_content2_desc': 'The heart of the decision-making process is the NVIDIA Jetson Orin Nano. It runs a custom-trained YOLO model, processing all camera feeds in real-time. This model detects and classifies objects (macaque, muntjac, human). The control software applies a simple logic: if a human is seen, enter "Safe Mode." If a target animal is seen (and no human), calculate its position and initiate tracking.',
+                'overview_content3_title': 'Actuation: The Mechanical Response',
+                'overview_content3_desc': "Based on the AI's decision, the Jetson commands the physical hardware. It sends signals to two NEMA 23 stepper motors via DM542S drivers, which move the high-torque herringbone gear pan-tilt mechanism to aim the paintball gun. To fire, it sends a signal to a relay, which activates a 24V solenoid to pull the trigger. This entire loop repeats multiple times per second.",
+                'components_title': 'Interactive Bill of Materials',
+                'components_subtitle': 'This is the complete list of components required for the project. Use the filters to explore parts by category or use the search bar to find a specific item. A breakdown of component categories is shown in the chart.',
+                'components_chart_title': 'Component Categories',
+                'components_software_title': 'Key Software Stack',
+                'components_sw1_title': 'Operating System',
+                'components_sw1_desc': 'NVIDIA JetPack SDK (on Jetson)',
+                'components_sw1_notes': 'Includes Ubuntu, CUDA, cuDNN, and TensorRT.',
+                'components_sw2_title': 'Core Language',
+                'components_sw2_desc': 'Python 3.x',
+                'components_sw2_notes': 'For the main control script, inference, and hardware I/O.',
+                'components_sw3_title': 'AI / Object Detection',
+                'components_sw3_desc': 'Ultralytics YOLO (v11 cited, v8+ common)',
+                'components_sw3_notes': 'Used for training and running the detection model.',
+                'components_sw4_title': 'Key Libraries',
+                'components_sw4_desc': 'OpenCV, TensorRT, RPi.GPIO (or similar)',
+                'components_sw4_notes': 'For camera vision, model acceleration, and motor control.',
+                'components_search_placeholder': "Search for a component (e.g., 'Jetson', 'NEMA 23')...",
+                'build_title': 'Interactive Build Guides',
+                'build_subtitle': 'Explore the four core phases of building this AI Turret. Click on any cloud below to reveal detailed steps, challenges, and insights for that stage of development.',
+                'build_btn1_title': 'Mechanical Assembly',
+                'build_btn1_desc': 'Physical frame & motion system',
+                'build_btn2_title': 'Electronics & Wiring',
+                'build_btn2_desc': 'Power, logic & control components',
+                'build_btn3_title': 'AI Model & Software',
+                'build_btn3_desc': 'Training vision & control script',
+                'build_btn4_title': 'Calibration & Testing',
+                'build_btn4_desc': 'Aligning vision & hardware',
+                'build_content1_title': 'Phase 1: Mechanical Assembly',
+                'build_content1_desc': 'This phase involves building the physical structure and motion system. Precision and rigidity are the primary goals. The core of this phase is the high-torque herringbone gear drive, which provides backlash-free, precise aiming.',
+                'build_content1_step1_title': '1. Construct the Main Frame',
+                'build_content1_step1_desc': 'Assemble the 2020 aluminum extrusion base and gantry. Use corner brackets and T-nuts to create a rigid skeleton, ensuring all corners are perfectly square.',
+                'build_content1_step2_title': '2. Fabricate & Assemble Pan-Tilt Drive',
+                'build_content1_step2_desc': '3D print the large herringbone gears (pan and tilt) and motor pinions from PETG or ABS. Mount the pan motor inside the frame, meshing with the main ring gear which sits on a thrust bearing. Assemble the tilt gantry with its motor and gear, supported by deep groove ball bearings.',
+                'build_content1_step3_title': '3. Mount Payload & Vision System',
+                'build_content1_step3_desc': 'Secure the paintball gun in its 3D printed cradle. Install the 24V solenoid using a custom bracket, aligning it perfectly with the trigger. Mount the four webcams on the stationary base frame to create the overlapping 360° field of view.',
+                'build_content2_title': 'Phase 2: Electronics & Wiring',
+                'build_content2_desc': "This phase connects all components, distributing power and control signals. A clean, methodical wiring plan with proper grounding is essential to prevent electrical noise from interfering with the Jetson's logic signals.",
+                'build_content2_step1_title': '1. Power Distribution',
+                'build_content2_step1_desc': 'Install the 12V Mean Well PSU. Use a terminal block to distribute 12V power to the Jetson, motor drivers, and two DC-DC converters. One buck converter steps 12V down to 5V (for logic), and one boost converter steps 12V up to 24V (for the solenoid).',
+                'build_content2_step2_title': '2. Motion Control Wiring',
+                'build_content2_step2_desc': "Connect the Jetson's GPIO pins to the `PUL+` (Pulse) and `DIR+` (Direction) inputs on the DM542S motor drivers. Connect the driver `PUL-` and `DIR-` pins to the Jetson's GND. Connect the four motor wires (A+, A-, B+, B-) from each NEMA 23 to its corresponding driver.",
+                'build_content2_step3_title': '3. Firing & Vision Connections',
+                'build_content2_step3_desc': "Wire the 24V solenoid to a 1-channel relay. The relay's logic side (VCC, GND, IN) is controlled by a 5V signal from the Jetson. To avoid USB bandwidth limits, connect two cameras to the Jetson's USB-A ports and the other two cameras to a powered USB-C hub.",
+                'build_content3_title': 'Phase 3: AI Model & Software',
+                'build_content3_desc': 'This phase involves creating the "brain" of the turret. A custom object detection model is trained to recognize targets and the control script integrates all hardware into one autonomous system.',
+                'build_content3_step1_title': '1. Build the Custom Dataset',
+                'build_content3_step1_desc': "Gather thousands of images for three classes: `formosan_macaque`, `muntjac`, and `human`. The 'human' class must be extremely diverse (poses, clothing, lighting) to ensure safety.",
+                'build_content3_step2_title': '2. Annotate and Train (YOLO)',
+                'build_content3_step2_desc': 'Use a tool like CVAT or Roboflow to draw bounding boxes around all objects in the dataset. Train a YOLO model (using the `ultralytics` package) on this custom dataset. This "transfer learning" process fine-tunes a pre-trained model for this specific task, resulting in a `best.pt` file.',
+                'build_content3_step3_title': '3. Deploy with TensorRT & Write Control Script',
+                'build_content3_step3_desc': "On the Jetson, convert the `best.pt` model to a `best.engine` file using `model.export(format='engine')`. This provides a massive speedup. The final Python script uses multi-threading to read all cameras, runs inference, and implements a state machine (SAFE, TRACKING, SEARCHING) to control the PID motor loops and firing relay.",
+                'build_content4_title': 'Phase 4: Calibration & Testing',
+                'build_content4_desc': 'This final phase "glues" the vision system to the motion system, ensuring that what the camera sees is where the gun points. This is followed by performance tuning and critical safety checks.',
+                'build_content4_step1_title': '1. Intrinsic Camera Calibration',
+                'build_content4_step1_desc': 'For each of the four cameras, use OpenCV and a printed chessboard pattern to calculate the lens distortion. This step generates a camera matrix and distortion coefficients that are used to `cv2.undistort()` every frame, ensuring all lines are straight.',
+                'build_content4_step2_title': '2. Turret-to-Camera Mapping (Homography)',
+                'build_content4_step2_desc': "This is the most critical step. Mount a laser pointer on the gun. Write a script to move the turret to a grid of known angles. At each point, record the laser dot's `(pixel_x, pixel_y)` coordinate. This creates a dataset mapping angles to pixels, which is used to compute a transformation matrix. This matrix allows the code to instantly convert a target's pixel location into the motor angles needed to aim at it.",
+                'build_content4_step3_title': '3. PID Tuning & Field Testing',
+                'build_content4_step3_desc': 'In a safe area, tune the `kP`, `kI`, and `kD` gains for the pan and tilt PID controllers. This ensures the tracking is fast, smooth, and does not overshoot the target. Start with P, then D, then I.',
+                'safety_title': 'Safety & Ethical Protocols',
+                'safety_subtitle': 'Safety is the highest priority. This system is an autonomous tool, and its development and operation carry significant responsibility. These protocols are mandatory and non-negotiable.',
+                'safety_item1_title': 'Physical E-Stop',
+                'safety_item1_desc': 'A large, red, physical "Emergency Stop" button must be wired to cut all power to the motors and firing solenoid, providing a foolproof hardware-level override.',
+                'safety_item2_title': 'Robust Human Detection',
+                'safety_item2_desc': 'The "Safe Mode" is the primary software defense. The confidence threshold for human detection must be set conservatively low (e.g., 0.3) to prioritize avoiding false negatives (failing to see a human) over false positives.',
+                'safety_item3_title': 'Geofencing',
+                'safety_item3_desc': "The turret's operational range must be programmatically limited to prevent it from aiming or firing outside the designated protected area.",
+                'safety_item4_title': 'Supervised Operation',
+                'safety_item4_desc': 'The system must never be left completely unattended. A human operator must always be present and able to intervene using the E-Stop.',
+                'footer_copyright': '© 2025 AI Farm Land Sentry. All rights reserved.',
+                // NEW DATA TELEMETRY KEYS
+                'dashboard_title': 'AI Sentry Operational Dashboard',
+                'data_title': 'Project Data Telemetry',
+                'data_subtitle': 'Raw JSON structures used for simulation, calibration, and operational state management within the dashboard demo.',
+                'data_metrics_title': '1. Operational Metrics (systemStatusData)',
+                'data_threat_title': '2. Threat Log Template (mockThreats)',
+                'data_geo_title': '3. Geo-Spatial Coordinates (Map Data)',
+            }
+        };
+
+        const langToggleButton = document.getElementById('lang-toggle-btn');
+        const langBtnText = document.getElementById('lang-btn-text');
+        const langDropdown = document.getElementById('lang-dropdown');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        // This function is now only responsible for applying the initial English text. 
+        // Google Translate takes over runtime translation.
+        function setLanguage(lang) {
+            currentLanguage = lang; 
+            document.documentElement.lang = lang;
+            document.getElementById('page-title').textContent = translations['en']['page_title'];
+
+            const elements = document.querySelectorAll('[data-lang-key]');
+            elements.forEach(el => {
+                const key = el.dataset.langKey;
+                if (translations['en'][key]) {
+                    el.innerHTML = translations['en'][key];
+                }
+            });
+
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.placeholder = translations['en']['components_search_placeholder'];
+            }
+            
+            // This button is now removed/obsolete but left for consistency
+            if (langBtnText) {
+                langBtnText.textContent = translations['en']['lang_btn_text'];
+            }
+
+            if (langDropdown) langDropdown.classList.add('hidden');
+            if (mobileMenu) {
+                mobileMenu.classList.add('hidden');
+            }
+            if (mobileMenuBtn) {
+                const hamburgerIcon = mobileMenuBtn.querySelector('svg:nth-of-type(1)');
+                const closeIcon = mobileMenuBtn.querySelector('svg:nth-of-type(2)');
+                if (hamburgerIcon) {
+                    hamburgerIcon.classList.remove('hidden');
+                    hamburgerIcon.classList.add('block');
+                }
+                if (closeIcon) {
+                    closeIcon.classList.add('hidden');
+                    closeIcon.classList.remove('block');
+                }
+            }
+            
+            renderComponents();
+        }
+
+
+        // --- GOOGLE TRANSLATE WIDGET INITIALIZATION ---
+        // This function is required by the Google Translate script
+        function googleTranslateElementInit() {
+          new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            autoDisplay: false
+          }, 'google_translate_element');
+
+          // We also place it in the mobile menu placeholder
+          new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            autoDisplay: false
+          }, 'google_translate_element_mobile');
+        }
+        window.googleTranslateElementInit = googleTranslateElementInit;
+
+        // Load the Google Translate script 
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        document.head.appendChild(script);
+
+        // --- UI FUNCTIONS ---
+        // Refactored showModal to use dynamic content
+        window.showModal = function(title, message, isError = false) {
+            const modalContentArea = document.getElementById('modal-content-area');
+            const color = isError ? 'text-red-700' : 'text-blue-700';
+            const buttonColor = isError ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700';
+
+            modalContentArea.innerHTML = `
+                <h3 class="text-xl font-bold ${color} mb-4">${title}</h3>
+                <p class="text-gray-700 mb-6">${message}</p>
+                <button onclick="closeModal()" class="w-full p-3 ${buttonColor} text-white font-semibold rounded-lg">OK</button>
+            `;
+            document.getElementById('statusModal').classList.remove('hidden');
+        }
+        
+        // New utility for input prompt modal
+        window.showPromptModal = function(title, placeholder, currentValue, actionFunction, inputMin = 100, inputMax = 2000) {
+            const modalContentArea = document.getElementById('modal-content-area');
+            
+            const inputHtml = `
+                <h3 class="text-xl font-bold text-blue-700 mb-4">${title}</h3>
+                <p class="text-gray-700 mb-4">Current Max: ${systemStatusData.initialPaintballCount} balls (Max limit 2000)</p>
+                <input type="number" id="prompt-input" class="w-full p-3 border border-gray-300 rounded-lg mb-6 text-center text-lg font-bold" 
+                       placeholder="${placeholder}" value="${currentValue}" min="${inputMin}" max="${inputMax}">
+                <div class="flex space-x-4">
+                    <button onclick="closeModal()" class="w-1/2 p-3 bg-gray-400 text-white font-semibold rounded-lg hover:bg-gray-500">Cancel</button>
+                    <button id="modal-action-btn" class="w-1/2 p-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">Save</button>
+                </div>
+            `;
+
+            modalContentArea.innerHTML = inputHtml;
+            document.getElementById('statusModal').classList.remove('hidden');
+            
+            // Set up the action button callback
+            document.getElementById('modal-action-btn').onclick = () => {
+                const newValue = document.getElementById('prompt-input').value; // Keep as string for parsing inside action
+                actionFunction(newValue);
+            };
+        }
+
+
+        window.closeModal = function() {
+            document.getElementById('statusModal').classList.add('hidden');
+            // Re-inject the default simple content for cleanup
+            document.getElementById('modal-content-area').innerHTML = `
+                <h3 class="text-xl font-bold text-blue-700 mb-4" id="modal-title">System Message</h3>
+                <p class="text-gray-700 mb-6" id="modal-message">Loading...</p>
+                <button onclick="closeModal()" class="w-full p-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">OK</button>
+            `;
+            // Remove the map listener if it exists
+            if (mapLocationListener) {
+                sentryMap.off('click', mapLocationListener);
+                mapLocationListener = null;
+                showModal('Locator Disabled', 'Manual Sentry location tool disabled.');
+            }
+        }
+        
+        // --- NEW CAPACITY EDITOR FUNCTIONS ---
+        window.openCapacityEditor = function() {
+            showPromptModal(
+                'Edit Max Magazine Capacity',
+                'Enter new maximum capacity (e.g., 1000)',
+                systemStatusData.initialPaintballCount,
+                saveNewCapacity
+            );
+        };
+
+        window.saveNewCapacity = function(newCapacityStr) {
+            closeModal();
+            const newCapacity = parseInt(newCapacityStr, 10);
+            if (isNaN(newCapacity) || newCapacity < 100 || newCapacity > 2000) {
+                showModal('Error', 'Invalid capacity entered. Must be between 100 and 2000.', true);
+                return;
+            }
+
+            const oldCapacity = systemStatusData.initialPaintballCount;
+            const oldRemaining = oldCapacity - systemStatusData.actuatorTriggerCount;
+            
+            systemStatusData.initialPaintballCount = newCapacity;
+            
+            if (newCapacity < oldRemaining) {
+                 systemStatusData.actuatorTriggerCount = 0; 
+                 showModal('Capacity Changed', `Max capacity lowered to ${newCapacity}. Payload reset to full for safety.`);
+            } else {
+                systemStatusData.actuatorTriggerCount = newCapacity - oldRemaining;
+                showModal('Capacity Changed', `Max capacity updated to ${newCapacity}.`);
+            }
+
+            updateDashboardMetrics();
+            renderTelemetryData();
+        }
+
+        // --- LLM GENERATION FUNCTION (omitted for brevity) ---
+        async function generateAIReport() {
+            const reportOutput = document.getElementById('ai-report-output');
+            const reportStatus = document.getElementById('ai-report-status');
+            const sourcesOutput = document.getElementById('ai-report-sources');
+            
+            reportStatus.innerHTML = '<span class="text-yellow-600">Generating report... (Please wait)</span>';
+            reportOutput.textContent = 'Analyzing system metrics and threat logs...';
+            sourcesOutput.textContent = '';
+
+            const model = "gemini-2.5-flash-preview-09-2025";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+            
+            const userQuery = `
+                Act as a Senior Field AI Analyst. Provide a concise, professional one-paragraph status report and key recommendation for the AI Farm Land Sentry. 
+                Metrics: ${JSON.stringify(systemStatusData, null, 2)}
+                Threat Log: ${JSON.stringify(mockThreats.slice(0, 5), null, 2)}
+                The report must cover hardware health, system uptime, payload status (gas/paintballs), and comment on the most critical threat in the last 24 hours. Conclude with a single, clear, proactive recommendation.
+            `;
+
+            const systemPrompt = "Act as a world-class field technician and AI analyst. Provide a concise, single-paragraph summary of the key findings and conclude with a specific, actionable recommendation.";
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                tools: [{ "google_search": {} }], 
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            let response;
+            try {
+                response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    if (response.status === 400 || response.status === 401) {
+                        showModal('API Error (40x)', 'Authentication Failed. Please check the mock key provided. The key is currently invalid or restricted.', true);
+                        reportStatus.innerHTML = '<span class="text-red-600">API Authentication Failed. (See System Message)</span>';
+                        reportOutput.textContent = 'Report generation failed due to invalid API key. Diagnostics cannot be performed.';
+                        return;
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const text = candidate.content.parts[0].text;
+                    reportOutput.textContent = text;
+                    reportStatus.innerHTML = '<span class="text-green-600">Report Generated Successfully.</span>';
+
+                    let sources = [];
+                    const groundingMetadata = candidate.groundingMetadata;
+                    if (groundingMetadata && groundingAttributions) {
+                        sources = groundingAttributions
+                            .map(attribution => attribution.web?.title || attribution.uri)
+                            .filter(s => s); 
+                    }
+                    sourcesOutput.textContent = sources.length > 0 ? `Sources: ${sources.join(', ')}` : '';
+                } else {
+                    throw new Error("No text candidate found in API response.");
+                }
+
+            } catch (error) {
+                console.error("Gemini API call failed:", error);
+                reportStatus.innerHTML = '<span class="text-red-600">Report Generation Failed.</span>';
+                reportOutput.textContent = `Error: ${error.message}. Please check console for details.`;
+            }
+        }
+        window.generateAIReport = generateAIReport;
+
+
+        // --- MAP FUNCTIONS ---
+        function initMap() {
+            if (!document.getElementById('sentryMap')) return;
+            
+            sentryMap = L.map('sentryMap', {
+                center: geoSpatialData.sentryLatLng,
+                zoom: 16,
+                zoomControl: false,
+                attributionControl: false
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(sentryMap);
+            
+            const sentryIcon = L.divIcon({
+                className: 'sentry-icon',
+                html: '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="red" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"></circle><path d="M15 9l-6 6m0-6l6 6"></path></svg>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+
+            sentryMarker = L.marker(geoSpatialData.sentryLatLng, { icon: sentryIcon }).addTo(sentryMap)
+                .bindPopup('<b>AI Sentry Unit (Pan: <span id="sentry-azimuth-map">0°</span>)</b>');
+
+            highPriorityLayer = L.polygon(geoSpatialData.highPriorityZoneCoords, { color: 'red', fillColor: '#f03', fillOpacity: 0.2, weight: 1 })
+                .bindPopup('High Priority Geo-Fence (Human Avoidance)')
+                .addTo(sentryMap);
+
+            lowPriorityLayer = L.polygon(geoSpatialData.lowPriorityZoneCoords, { color: 'yellow', fillColor: '#ffc107', fillOpacity: 0.1, weight: 1 })
+                .bindPopup('Low Priority Geo-Fence (Animal Deterrent)')
+                .addTo(sentryMap);
+            
+            latestThreatMarker = L.circleMarker([0, 0], { radius: 0 }).addTo(sentryMap);
+            threatLine = L.polyline([], { color: 'red', weight: 3, opacity: 0.7, dashArray: '5, 10' }).addTo(sentryMap);
+        }
+
+        function updateMapVisualization() {
+            if (!sentryMap || !sentryMarker) return;
+
+            const latestThreat = mockThreats[mockThreats.length - 1];
+            const azimuth = latestThreat ? latestThreat.azimuth : currentAzimuth;
+            const offset = latestThreat ? latestThreat.offset : 0;
+            
+            const azimuthElement = document.getElementById('sentry-azimuth-map');
+            if (azimuthElement) {
+                azimuthElement.textContent = `${Math.round(azimuth)}°`;
+            }
+            
+            const sentryLat = geoSpatialData.sentryLatLng[0];
+            const sentryLng = geoSpatialData.sentryLatLng[1];
+
+            // Rerun the marker update to reflect new sentry position
+            sentryMarker.setLatLng(geoSpatialData.sentryLatLng);
+            sentryMap.setView(geoSpatialData.sentryLatLng, sentryMap.getZoom());
+
+            const distance = 100 * (0.0001 + offset);
+            const bearing = azimuth;
+            
+            const R = 6371e3;
+            const latRad = sentryLat * (Math.PI / 180);
+            const lonRad = sentryLng * (Math.PI / 180);
+            const brngRad = bearing * (Math.PI / 180);
+
+            // Haversine formula for bearing/distance calculation
+            const lat2Rad = Math.asin(Math.sin(latRad) * Math.cos(distance / R) + 
+                                   Math.cos(latRad) * Math.sin(distance / R) * Math.cos(brngRad));
+            const lon2Rad = lonRad + Math.atan2(Math.sin(brngRad) * Math.sin(distance / R) * Math.cos(latRad), 
+                                            Math.cos(distance / R) - Math.sin(latRad) * Math.sin(lat2Rad));
+
+            const targetLat = lat2Rad * (180 / Math.PI);
+            const targetLng = lon2Rad * (180 / Math.PI);
+            
+            const targetLatLng = L.latLng(targetLat, targetLng);
+
+            latestThreatMarker.setLatLng(targetLatLng);
+            latestThreatMarker.setStyle({ radius: 8, color: latestThreat?.severity === 'high' ? 'red' : 'orange', opacity: 1, fillOpacity: 0.8 });
+            latestThreatMarker.bindPopup(`Threat: ${latestThreat?.type || 'Manual Target'} at ${Math.round(azimuth)}°`).openPopup();
+
+            threatLine.setLatLngs([
+                geoSpatialData.sentryLatLng, 
+                targetLatLng
+            ]);
+        }
+
+        window.activateMapLocator = function() {
+            showModal('Sentry Locator Active', 'Click anywhere on the map to set the new location for the AI Sentry unit.', false);
+            
+            // Remove old listener if it exists to prevent multiple modals
+            if (mapLocationListener) sentryMap.off('click', mapLocationListener);
+
+            // Add the new listener
+            mapLocationListener = function(e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+                
+                showPromptModal(
+                    'Confirm New Sentry Location', 
+                    'Enter Latitude and Longitude:', 
+                    `${lat.toFixed(4)}, ${lng.toFixed(4)}`, 
+                    (input) => {
+                        const parts = input.split(',').map(p => parseFloat(p.trim()));
+                        if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                            updateSentryLocation(parts[0], parts[1]);
+                            closeModal();
+                        } else {
+                            showModal('Error', 'Invalid Lat/Lng format. Please use "XX.XXXX, -YY.YYYY"', true);
+                        }
+                    },
+                    -90, 90 // Lat min/max
+                );
+                
+                // Temporarily disable click handler until modal is closed
+                sentryMap.off('click', mapLocationListener);
+            };
+
+            sentryMap.on('click', mapLocationListener);
+        }
+
+        window.updateSentryLocation = function(newLat, newLng) {
+            geoSpatialData.sentryLatLng = [newLat, newLng];
+            updateMapVisualization();
+            renderTelemetryData();
+            showModal('Location Updated', `Sentry relocated to: ${newLat.toFixed(4)}, ${newLng.toFixed(4)}`);
+        }
+        
+        // --- UI RENDER & UTILITY FUNCTIONS (omitted for brevity) ---
+        function updateDashboardMetrics() {
+            const fired = systemStatusData.actuatorTriggerCount;
+            const initial = systemStatusData.initialPaintballCount;
+            const remaining = Math.max(0, initial - fired);
+
+            document.getElementById('metric-power').textContent = `${Math.round(systemStatusData.powerLevel * 100)}%`;
+            document.getElementById('metric-uptime').textContent = `${Math.round(systemStatusData.cameraUptime * 100)}%`;
+            document.getElementById('metric-temp').textContent = `${systemStatusData.operatingTempCelsius}°C`;
+            document.getElementById('metric-gas').textContent = `${Math.round(systemStatusData.gasLevel * 100)}%`;
+            
+            // Ensure payload metric displays the correct max capacity
+            document.getElementById('metric-paintballs').innerHTML = `${remaining} / <strong>${initial}</strong>`;
+
+            document.getElementById('manual-azimuth').textContent = `${currentAzimuth}°`;
+        }
+
+        function renderThreatLog() {
+            const logBody = document.getElementById('threat-log-body');
+            if (!logBody) return;
+            
+            const recentThreats = [...mockThreats].reverse().slice(0, 10); 
+
+            logBody.innerHTML = recentThreats.map(threat => {
+                let colorClass = 'text-gray-900';
+                if (threat.severity === 'high') colorClass = 'text-red-600 font-bold';
+                else if (threat.severity === 'medium') colorClass = 'text-yellow-600';
+
+                return `
+                    <tr class="hover:bg-gray-100">
+                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">${threat.time}</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-sm ${colorClass}">${threat.type}</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-700">${threat.confidence} (${threat.model})</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-700">${threat.azimuth}°</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function renderTelemetryData() {
+            document.getElementById('data-metrics').textContent = JSON.stringify(systemStatusData, null, 4);
+            document.getElementById('data-threats').textContent = JSON.stringify(mockThreats, null, 4);
+            document.getElementById('data-geo').textContent = JSON.stringify(geoSpatialData, null, 4);
+        }
+
+        window.changeAzimuth = function(delta) {
+            currentAzimuth = (currentAzimuth + delta) % 360;
+            if (currentAzimuth < 0) currentAzimuth += 360;
+            updateDashboardMetrics();
+            updateMapVisualization();
+        }
+
+        window.manualFire = function() {
+            if (systemStatusData.actuatorTriggerCount >= systemStatusData.initialPaintballCount) {
+                showModal('Payload Empty', 'The paintball magazine is empty. Please refill the payload before manual firing.', true);
+                return;
+            }
+
+            systemStatusData.actuatorTriggerCount++;
+            updateDashboardMetrics();
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+            mockThreats.push({
+                id: mockThreats.length + 1,
+                time: timeString,
+                type: 'MANUAL FIRE (Test)',
+                confidence: 'N/A',
+                severity: 'low',
+                azimuth: currentAzimuth,
+                model: 'Operator Override',
+                offset: 0.0001
+            });
+            renderThreatLog();
+            updateMapVisualization();
+            showModal('Fire Command Sent', `Actuator triggered at ${currentAzimuth}°! Paintballs remaining: ${systemStatusData.initialPaintballCount - systemStatusData.actuatorTriggerCount}`);
+        }
+
+        window.resetPaintballPayload = function() {
+            const refillInput = document.getElementById('refill-input');
+            const refillAmount = parseInt(refillInput.value, 10);
+            
+            if (isNaN(refillAmount) || refillAmount < 0) {
+                showModal('Invalid Refill Amount', `Please enter a valid non-negative number.`, true);
+                return;
+            }
+            
+            const initial = systemStatusData.initialPaintballCount;
+            const currentFired = systemStatusData.actuatorTriggerCount;
+            const currentRemaining = initial - currentFired;
+            
+            const totalAfterRefill = currentRemaining + refillAmount;
+            
+            if (totalAfterRefill > initial) {
+                systemStatusData.actuatorTriggerCount = 0;
+                showModal('Refill Complete', `Magazine filled to capacity (${initial}). Excess paintballs discarded.`);
+            } else {
+                // Calculate the new fired count by subtracting the added amount from the current fired count
+                systemStatusData.actuatorTriggerCount = initial - totalAfterRefill;
+                showModal('Partial Refill Complete', `Added ${refillAmount} paintballs. Total payload is now ${totalAfterRefill}/${initial}.`);
+            }
+
+            refillInput.value = '';
+            updateDashboardMetrics();
+            renderTelemetryData();
+        }
+
+        window.removePaintballPayload = function() {
+            const removeInput = document.getElementById('remove-input');
+            const removeAmount = parseInt(removeInput.value, 10);
+            
+            if (isNaN(removeAmount) || removeAmount < 0) {
+                showModal('Invalid Removal Amount', `Please enter a valid non-negative number.`, true);
+                return;
+            }
+
+            const initial = systemStatusData.initialPaintballCount;
+            const currentFired = systemStatusData.actuatorTriggerCount;
+            const currentRemaining = initial - currentFired;
+            
+            if (removeAmount > currentRemaining) {
+                showModal('Error', `Cannot remove ${removeAmount}. Only ${currentRemaining} paintballs remaining.`, true);
+                return;
+            }
+
+            // To remove balls (decrease remaining stock), we increase the actuatorTriggerCount by the amount removed.
+            systemStatusData.actuatorTriggerCount += removeAmount;
+            const newRemaining = currentRemaining - removeAmount;
+
+            showModal('Payload Adjusted', `Removed ${removeAmount} paintballs. Total payload is now ${newRemaining}/${initial}.`);
+
+            removeInput.value = '';
+            updateDashboardMetrics();
+            renderTelemetryData();
+        }
+
+
+        // --- CHART FUNCTIONS (omitted for brevity) ---
+        function initThreatChart() {
+            const ctx = document.getElementById('threatHistoryChart')?.getContext('2d');
+            if (!ctx) return;
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Day -6', 'Day -5', 'Day -4', 'Day -3', 'Day -2', 'Yesterday', 'Today'],
+                    datasets: [{
+                        label: 'Threats Detected per Day',
+                        data: systemStatusData.threatDetectionHistory,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        tension: 0.4,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Detections' } }
+                    }
+                }
+            });
+        }
+
+        // --- CAMERA SIMULATION ---
+        function drawCameraFeeds() {
+            if (!camCanvas || !camContext) {
+                // Initialize if not ready
+                camCanvas = document.getElementById('cam-feed-0');
+                if (!camCanvas) return;
+                camContext = camCanvas.getContext('2d');
+                // Set initial size
+                camCanvas.height = 300;
+                camCanvas.width = camCanvas.parentElement.clientWidth * 3;
+            }
+
+            const w = camCanvas.width;
+            const h = camCanvas.height;
+            const centerY = h * 0.7; // Lower horizon
+
+            // 1. Draw Simulated Background
+            camContext.fillStyle = '#1f2937'; // Night sky
+            camContext.fillRect(0, 0, w, h);
+            
+            // Simulated ground/vegetation (below horizon)
+            camContext.fillStyle = '#22c55e'; 
+            camContext.fillRect(0, centerY, w, h - centerY);
+
+            // Simulated noise/night vision filter
+            camContext.fillStyle = `rgba(52, 211, 153, ${0.1 + Math.random() * 0.05})`;
+            camContext.fillRect(0, 0, w, h);
+            
+            // 2. Draw Simulated Geo-Coordinate Scale (Latitude and Longitude)
+            const sentryLat = geoSpatialData.sentryLatLng[0];
+            const sentryLng = geoSpatialData.sentryLatLng[1];
+            const latText = `Lat: ${sentryLat.toFixed(4)}° N`;
+            const lonOffsetScale = 0.001; // Mock total longitude swing across 360 degrees
+
+            camContext.strokeStyle = '#93c5fd'; // Light blue for coordinates
+            camContext.fillStyle = '#93c5fd';
+            camContext.font = '12px Inter';
+            camContext.textAlign = 'center';
+            camContext.lineWidth = 1;
+
+            // Draw a base line near the top for the coordinate scale
+            camContext.beginPath();
+            camContext.moveTo(0, 30);
+            camContext.lineTo(w, 30);
+            camContext.stroke();
+            
+            // Draw Latitude (Static)
+            camContext.fillText(latText, w / 2, 20);
+
+            // Draw Longitude Markers every 60 degrees
+            for (let i = 0; i <= 360; i += 60) {
+                const xPos = (i / 360) * w;
+                
+                // Simulate longitude change across the field
+                const projectedLon = sentryLng + ((i - 180) / 360) * lonOffsetScale; // Example offset
+                const lonText = `${projectedLon.toFixed(4)}° E`;
+
+                // Draw tick mark
+                camContext.beginPath();
+                camContext.moveTo(xPos, 30);
+                camContext.lineTo(xPos, 40);
+                camContext.stroke();
+                
+                // Draw coordinate label
+                camContext.fillText(lonText, xPos, 55);
+            }
+
+            // 3. Draw Sentry Aim Line (Azimuth)
+            const azimuthPos = (currentAzimuth / 360) * w;
+
+            camContext.strokeStyle = '#ef4444'; // Red for aiming
+            camContext.lineWidth = 2;
+            
+            camContext.beginPath();
+            camContext.moveTo(azimuthPos, 0);
+            camContext.lineTo(azimuthPos, h);
+            camContext.stroke();
+            
+            camContext.font = '16px Inter';
+            camContext.fillStyle = '#ef4444';
+            camContext.fillText(`AIM: ${currentAzimuth}°`, azimuthPos + 50, 80);
+            
+            // 4. Draw Latest Threat Overlay
+            const latestThreat = mockThreats[mockThreats.length - 1];
+            if (latestThreat) {
+                const offsetDegrees = latestThreat.azimuth; 
+                const detectionX = (offsetDegrees / 360) * w;
+                const detectionY = centerY - 50; 
+
+                camContext.strokeStyle = latestThreat.severity === 'high' ? '#f87171' : '#facc15';
+                camContext.lineWidth = 3;
+                
+                const boxWidth = 80;
+                const boxHeight = 60;
+                camContext.strokeRect(detectionX - boxWidth / 2, detectionY - boxHeight / 2, boxWidth, boxHeight);
+                
+                camContext.fillStyle = latestThreat.severity === 'high' ? '#f87171' : '#facc15';
+                camContext.font = '16px Inter';
+                camContext.fillText(
+                    `${latestThreat.type} (${latestThreat.confidence})`, 
+                    detectionX, 
+                    detectionY - boxWidth / 2 - 5
+                );
+            }
+
+
+            requestAnimationFrame(drawCameraFeeds);
+        }
+
+        // --- INITIALIZATION ---
+        function initDashboard() {
+            // Initialize the single canvas reference
+            camCanvas = document.getElementById('cam-feed-0');
+            if (camCanvas) {
+                camContext = camCanvas.getContext('2d');
+            }
+            
+            updateDashboardMetrics();
+            renderThreatLog();
+            initThreatChart();
+            
+            initMap();
+            updateMapVisualization(); 
+
+            // Start the continuous animation loop
+            requestAnimationFrame(drawCameraFeeds); 
+
+            renderTelemetryData();
+            
+            lucide.createIcons();
+        }
+
+        // --- CORE INIT ---
+        const allComponents = [
+            { category: 'Computing', name: { en: 'Jetson Orin Nano Dev Kit' }, spec: '-', qty: 1, role: { en: 'Central processing unit for AI inference and system control.' } },
+            { category: 'Structure', name: { en: '2020 Aluminum Extrusion' }, spec: '45 cm', qty: 12, role: { en: 'Forms the primary structural frame.' } },
+            { category: 'Structure', name: { en: '2020 Aluminum Extrusion' }, spec: '100 cm', qty: 12, role: { en: 'Forms the primary structural frame.' } },
+            { category: 'Structure', name: { en: '2020 Corner Brackets' }, spec: '90-degree', qty: 40, role: { en: 'Connects extrusions to form rigid frame corners.' } },
+            { category: 'Structure', name: { en: 'M5 T-Nuts' }, spec: 'For 2020', qty: 100, role: { en: 'Provides threaded mounting points in extrusion slots.' } },
+            { category: 'Structure', name: { en: 'M5 Button Head Cap Screws' }, spec: '8 mm', qty: 100, role: { en: 'Fastens components to T-nuts.' } },
+            { category: 'Motion', name: { en: 'NEMA 23 Stepper Motor' }, spec: 'High Torque (>2 N·m)', qty: 2, role: { en: 'Provides rotational force for pan and tilt axes.' } },
+            { category: 'Motion', name: { en: 'Microstep Driver' }, spec: 'DM542S', qty: 2, role: { en: 'Controls the current and stepping of the NEMA 23 motors.' } },
+            { category: 'Motion', name: { en: 'NEMA 23 Mounting Plate' }, spec: '60x90 mm', qty: 2, role: { en: 'Securely mounts the stepper motors to the frame.' } },
+            { category: 'Motion', name: { en: 'Large Herringbone Ring Gear' }, spec: '3D Printed, ~200mm OD', qty: 1, role: { en: 'Pan axis main gear for high torque and precision.' } },
+            { category: 'Motion', name: { en: 'Large Herringbone Tilt Gear' }, spec: '3D Printed, ~120mm OD', qty: 1, role: { en: 'Tilt axis main gear.' } },
+            { category: 'Motion', name: { en: 'Motor Pinion Gear' }, spec: '3D Printed', qty: 2, role: { en: 'Small gear attached to the motor shaft.' } },
+            { category: 'Motion', name: { en: 'Thrust Bearing' }, spec: 'e.g., 51110 (50mm ID)', qty: 1, role: { en: 'Supports the axial load of the rotating turret.' } },
+            { category: 'Motion', name: { en: 'Deep Groove Ball Bearings' }, spec: 'e.g., 6806-2RS (30mm ID)', qty: 2, role: { en: 'Supports the tilt axis shaft for smooth rotation.' } },
+            { category: 'Payload', name: { en: 'Paintball Gun' }, spec: 'Valken Razorback', qty: 1, role: { en: 'The projectile delivery system.' } },
+            { category: 'Payload', name: { en: 'Push-Pull Solenoid' }, spec: 'DC 24V, 35mm stroke', qty: 1, role: { en: 'Actuates the trigger mechanism.' } },
+            { category: 'Payload', name: { en: 'Solenoid Mounting Bracket' }, spec: 'Custom 3D Printed', qty: 1, role: { en: 'Holds the solenoid in a precise position.' } },
+            { category: 'Vision', name: { en: 'Webcam' }, spec: 'Logitech C615', qty: 4, role: { en: 'Provides 360-degree video input.' } },
+            { category: 'Vision', name: { en: 'USB-C to USB-A Hub' }, spec: '4-port, powered', qty: 1, role: { en: 'Bypasses bandwidth limitations on the main USB hub.' } },
+            { category: 'Vision', name: { en: 'Camera Mounts' }, spec: 'Custom 3D Printed', qty: 4, role: { en: 'Positions cameras on the frame.' } },
+            { category: 'Power', name: { en: 'Switching Power Supply' }, spec: 'Mean Well LRS-150-12', qty: 1, role: { en: 'Provides main 12V DC power from AC.' } },
+            { category: 'Power', name: { en: 'DC-DC Buck Converter' }, spec: 'LM2596', qty: 1, role: { en: 'Steps down 12V to 5V for logic.' } },
+            { category: 'Power', name: { en: 'DC-DC Boost Converter' }, spec: 'XL6009', qty: 1, role: { en: 'Steps up 12V to 24V for the solenoid.' } },
+            { category: 'Power', name: { en: 'AC Power Cord' }, spec: '3-prong, grounded', qty: 1, role: { en: 'Connects the PSU to mains power.' } },
+            { category: 'Control', name: { en: 'ESP32 Dev Board' }, spec: 'Optional', qty: 1, role: { en: 'Optional secondary controller or GPIO expander.' } },
+            { category: 'Control', name: { en: 'Relay Module' }, spec: '1-channel, 5V logic', qty: 1, role: { en: 'Switches the 24V power to the solenoid.' } },
+            { category: 'Control', name: { en: 'Terminal Block Connectors' }, spec: 'Screw terminals', qty: 1, role: { en: 'Facilitates clean power and signal distribution.' } },
+            { category: 'Control', name: { en: 'Jumper Wires & Hookup Wire' }, spec: '18-22 AWG', qty: 1, role: { en: 'For all electrical connections.' } }
+        ];
+
+        let activeCategory = 'All';
+        let searchTerm = '';
+
+        const componentGrid = document.getElementById('component-grid');
+        const categoryFilters = document.getElementById('category-filters');
+        const searchInput = document.getElementById('searchInput');
+
+        function renderComponents() {
+            if (!componentGrid) return; 
+            const filtered = allComponents.filter(item => {
+                const inCategory = activeCategory === 'All' || item.category === activeCategory;
+                // Since we removed zh-tw, only using English fields
+                const name = item.name['en']; 
+                const role = item.role['en']; 
+                const inSearch = searchTerm === '' || name.toLowerCase().includes(searchTerm) || role.toLowerCase().includes(searchTerm);
+                return inCategory && inSearch;
+            });
+
+            if (filtered.length === 0) {
+                componentGrid.innerHTML = `<p class="text-gray-600 col-span-1 md:col-span-2 text-center">No components match your criteria.</p>`;
+                return;
+            }
+
+            componentGrid.innerHTML = filtered.map(item => `
+                <div class="component-card">
+                    <div class="p-5">
+                        <div class="flex justify-between items-start">
+                            <h4 class="text-lg font-semibold text-blue-800">${item.name['en']}</h4>
+                            <span class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">${item.category}</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-2">Spec: ${item.spec} (Qty: ${item.qty})</p>
+                        <p class="text-sm text-gray-700">${item.role['en']}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function initCategories() {
+            if (!categoryFilters) return; 
+            const categories = ['All', ...new Set(allComponents.map(item => item.category))];
+            categoryFilters.innerHTML = categories.map(category => `
+                <button class="category-button ${category === 'All' ? 'active' : ''}" data-category="${category}">
+                    ${category}
+                </button>
+            `).join('');
+
+            categoryFilters.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    activeCategory = e.target.dataset.category;
+                    document.querySelectorAll('#category-filters .category-button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+                    renderComponents();
+                }
+            });
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('keyup', (e) => {
+                searchTerm = e.target.value.toLowerCase();
+                renderComponents();
+            });
+        }
+
+        const overviewButtons = {
+            perception: document.getElementById('btn-perception'),
+            decision: document.getElementById('btn-decision'),
+            actuation: document.getElementById('btn-actuation')
+        };
+        const overviewContents = {
+            perception: document.getElementById('content-perception'),
+            decision: document.getElementById('content-decision'),
+            actuation: document.getElementById('content-actuation')
+        };
+        const overviewCloudWrappers = document.querySelectorAll('.overview-cloud-wrapper');
+
+        function handleOverviewClick(event) {
+            const wrapper = event.currentTarget;
+            const section = wrapper.dataset.overview;
+
+            const clickedButton = overviewButtons[section];
+            const clickedContent = overviewContents[section];
+
+            if (!clickedButton || !clickedContent) return;
+
+            const isAlreadyActive = clickedButton.classList.contains('active');
+
+            Object.values(overviewContents).forEach(el => el.classList.add('hidden'));
+            Object.values(overviewButtons).forEach(el => el.classList.remove('active'));
+            overviewCloudWrappers.forEach(el => {
+                el.classList.remove('active');
+                el.style.animationPlayState = 'running'; 
+            });
+
+            if (!isAlreadyActive) {
+                clickedButton.classList.add('active');
+                clickedContent.classList.remove('hidden');
+                wrapper.classList.add('active'); 
+                wrapper.style.animationPlayState = 'paused'; 
+                wrapper.style.transform = 'translateY(0px) scale(1.08)'; 
+            }
+        }
+
+        overviewCloudWrappers.forEach(wrapper => {
+            wrapper.addEventListener('click', handleOverviewClick);
+        });
+
+        const tabButtons = {
+            mechanical: document.getElementById('tab-btn-mechanical'),
+            electronics: document.getElementById('tab-btn-electronics'),
+            ai: document.getElementById('tab-btn-ai'),
+            calibration: document.getElementById('tab-btn-calibration')
+        };
+        const tabContents = {
+            mechanical: document.getElementById('tab-content-mechanical'),
+            electronics: document.getElementById('tab-content-electronics'),
+            ai: document.getElementById('tab-content-ai'),
+            calibration: document.getElementById('tab-content-calibration')
+        };
+
+        const buildCloudWrappers = document.querySelectorAll('.cloud-button-wrapper[data-tab]');
+
+        function handleBuildCloudClick(event) {
+            const wrapper = event.currentTarget; 
+            const tabName = wrapper.dataset.tab; 
+
+            const clickedButton = tabButtons[tabName];
+            const clickedContent = tabContents[tabName];
+
+            if (!clickedButton || !clickedContent) return;
+
+            const isAlreadyActive = clickedButton.classList.contains('active');
+
+            Object.values(tabContents).forEach(el => el.classList.add('hidden'));
+            Object.values(tabButtons).forEach(el => el.classList.remove('active'));
+            buildCloudWrappers.forEach(el => {
+                el.querySelector('.cloud-button')?.classList.remove('active'); 
+                el.style.animationPlayState = 'running'; 
+            });
+
+
+            if (!isAlreadyActive) {
+                clickedButton.classList.add('active'); 
+                clickedContent.classList.remove('hidden');
+                wrapper.style.animationPlayState = 'paused'; 
+                wrapper.style.transform = 'translateY(0px) scale(1.08)'; 
+            }
+        }
+
+        buildCloudWrappers.forEach(wrapper => {
+            wrapper.addEventListener('click', handleBuildCloudClick);
+        });
+
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('a.nav-link[href^="#"], a.mobile-nav-link[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelectorAll('a.nav-link, a.mobile-nav-link').forEach(link => link.classList.remove('active'));
+                this.classList.add('active');
+
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // BOM Chart
+        const bomCtx = document.getElementById('bomChart')?.getContext('2d');
+        if (bomCtx) {
+            const categoryCounts = allComponents.reduce((acc, item) => {
+                acc[item.category] = (acc[item.category] || 0) + 1;
+                return acc;
+            }, {});
+
+            new Chart(bomCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categoryCounts),
+                    datasets: [{
+                        label: 'Component Categories',
+                        data: Object.values(categoryCounts),
+                        backgroundColor: [
+                            '#0077b6', // Computing
+                            '#00b4d8', // Structure
+                            '#90e0ef', // Motion
+                            '#343a40', // Payload
+                            '#6c757d', // Vision
+                            '#adb5bd', // Power
+                            '#ced4da', // Control
+                            '#ffb703'  // Fallback color
+                        ],
+                        borderColor: '#f8f7f4',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#343a40',
+                                font: {
+                                    family: 'Inter'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            setLanguage(currentLanguage); // This initializes English text
+            initCategories(); 
+            initDashboard(); 
+        });
+    </script>
+</body>
+</html>
