@@ -419,31 +419,36 @@
                 </div>
             </div>
 
-            <!-- START: Added Overview Content Blocks -->
+            <!-- NEW: Container for all overview content blocks -->
             <div id="overview-content-container" class="mt-8">
-                <!-- Perception Content -->
+                <!-- Content for Perception (MOVED) -->
                 <div id="content-perception" class="overview-content hidden">
-                    <h3 class="text-2xl font-semibold text-blue-700 mb-4" data-lang-key="overview_content1_title">Perception: The 360° Tri-Camera System</h3>
+                    <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content1_title">Perception: The 360° Tri-Camera System</h3>
                     <p class="text-gray-700" data-lang-key="overview_content1_desc">The system perceives its environment using a tri-camera array (3x Logitech C615 webcams), providing a stitched 360-degree panoramic view. The real-time feeds are processed by the AI, with each camera covering a 120-degree sector.</p>
                 </div>
-                <!-- Decision Content -->
+    
+                <!-- Content for Decision (MOVED) -->
                 <div id="content-decision" class="overview-content hidden">
-                    <h3 class="text-2xl font-semibold text-blue-700 mb-4" data-lang-key="overview_content2_title">Decision: The AI Brain (Jetson & YOLO)</h3>
+                    <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content2_title">Decision: The AI Brain (Jetson & YOLO)</h3>
                     <p class="text-gray-700" data-lang-key="overview_content2_desc">The heart of the decision-making process is the NVIDIA Jetson Orin Nano. It runs a custom-trained YOLO model, processing all camera feeds in real-time. This model detects and classifies objects (macaque, muntjac, human). The control software applies a simple logic: if a human is seen, enter "Safe Mode." If a target animal is seen (and no human), calculate its position and initiate tracking.</p>
                 </div>
-                <!-- Actuation Content -->
+
+                <!-- Content for Actuation (MOVED) -->
                 <div id="content-actuation" class="overview-content hidden">
-                    <h3 class="text-2xl font-semibold text-blue-700 mb-4" data-lang-key="overview_content3_title">Actuation: The Mechanical Response</h3>
+                    <h3 class="text-2xl font-semibold text-blue-700 mb-3" data-lang-key="overview_content3_title">Actuation: The Mechanical Response</h3>
                     <p class="text-gray-700" data-lang-key="overview_content3_desc">Based on the AI's decision, the Jetson commands the physical hardware. It sends signals to two NEMA 23 stepper motors via DM542S drivers, which move the high-torque herringbone gear pan-tilt mechanism to aim the paintball gun. To fire, it sends a signal to a relay, which activates a 24V solenoid to pull the trigger. This entire loop repeats multiple times per second.</p>
                 </div>
             </div>
-            <!-- END: Added Overview Content Blocks -->
 
-            <!-- REMOVED: Cleaned up commented-out container -->
+            <!-- MOVED: This container is now at the bottom of the Overview section -->
+            <div id="inactive-buttons-container" class="flex flex-col md:flex-row items-center justify-center gap-8 mt-12 mb-4">
+                <!-- Inactive buttons will be moved here by JS -->
+            </div>
         </section>
 
         <!-- LIVE FEED SECTION -->
         <section id="live-feed" class="content-section bg-gray-900 shadow-inner">
+            <!-- REMOVED: Container for inactive buttons was here -->
             
             <h2 class="text-3xl font-bold text-center text-white mb-4" data-lang-key="live_feed_title">Live 360° Visual Feed</h2>
             <p class="text-lg font-mono text-center text-yellow-400 -mt-2 mb-4" data-lang-key="live_feed_machine_id">Machine ID: SENTRY-AFLS-001</p>
@@ -1158,8 +1163,8 @@
             // Get all cloud wrappers
             const overviewCloudWrappers = document.querySelectorAll('.overview-cloud-wrapper');
             // Get the two containers for button logic
-            // const originalButtonContainer = document.getElementById('overview-button-container'); // No longer needed for this logic
-            // const inactiveButtonContainer = document.getElementById('inactive-buttons-container'); // No longer needed
+            const originalButtonContainer = document.getElementById('overview-button-container');
+            const inactiveButtonContainer = document.getElementById('inactive-buttons-container');
 
 
             function handleOverviewClick(event) {
@@ -1169,25 +1174,33 @@
                 const clickedButton = overviewButtons[section];
                 const clickedContent = overviewContents[section];
 
-                if (!clickedButton || !clickedContent) return; // Simplified check
+                if (!clickedButton || !clickedContent || !originalButtonContainer || !inactiveButtonContainer) return;
 
                 const isAlreadyActive = clickedButton.classList.contains('active');
 
                 // --- RESET PHASE ---
                 // Deactivate all buttons and content first
-                Object.values(overviewContents).forEach(el => {
-                    if (el) el.classList.add('hidden'); // Add safety check
-                });
-                Object.values(overviewButtons).forEach(el => {
-                    if (el) el.classList.remove('active'); // Add safety check
-                });
+                Object.values(overviewContents).forEach(el => el.classList.add('hidden'));
+                Object.values(overviewButtons).forEach(el => el.classList.remove('active'));
                 
-                // Reset styles for all wrappers
+                // Move all wrappers back to the original container and reset styles
                 overviewCloudWrappers.forEach(wr => {
                     wr.classList.remove('active');
                     wr.style.animationPlayState = 'running';
                     wr.style.transform = ''; // Clear transform
+                    originalButtonContainer.appendChild(wr); // Move it back
                 });
+
+                // Sort them to be in the correct order
+                const buttons = Array.from(originalButtonContainer.children).filter(el => el.classList.contains('overview-cloud-wrapper'));
+                buttons.sort((a, b) => {
+                    const order = { 'perception': 1, 'decision': 2, 'actuation': 3 };
+                    // Check if dataset.overview exists before accessing
+                    const orderA = a.dataset && a.dataset.overview ? order[a.dataset.overview] : 99;
+                    const orderB = b.dataset && b.dataset.overview ? order[b.dataset.overview] : 99;
+                    return orderA - orderB;
+                });
+                buttons.forEach(btn => originalButtonContainer.appendChild(btn));
                 // --- END RESET PHASE ---
 
 
@@ -1200,10 +1213,16 @@
                     wrapper.style.animationPlayState = 'paused';
                     wrapper.style.transform = 'translateY(0px) scale(1.08)';
 
-                    // No longer moving other buttons
+                    // Move the *other* buttons
+                    buttons.forEach(btnWrapper => {
+                        if (btnWrapper !== wrapper) {
+                            inactiveButtonContainer.appendChild(btnWrapper);
+                        }
+                    });
                 }
                 // If it *was* already active (isAlreadyActive = true),
-                // the RESET PHASE already did everything we need.
+                // the RESET PHASE already did everything we need (moved all buttons back, hid content).
+                // So no 'else' block is needed.
             }
 
             // Attach the listener to the wrappers
